@@ -1,58 +1,173 @@
 /**
  * U-Can-Act Native App
- * https://github.com/compsy/vsv-mobile
+ * https://github.com/compsy/svs-mobile
  * @flow
  */
-
 import React, { Component } from 'react';
 import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  Button,
+  Alert
 } from 'react-native';
+import { StackNavigator } from 'react-navigation';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
 
-type Props = {};
-export default class App extends Component<Props> {
+class HomeScreen extends React.Component<Props> {
+  _onPressPull() {
+    this.props.navigation.navigate('Pull')
+  }
+
+  _onPressNothing() {
+    Alert.alert('I told you this does nothing.')
+  }
+
+  static navigationOptions = {
+    header: null,
+  };
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit App.js
-        </Text>
-        <Text style={styles.instructions}>
-          {instructions}
-        </Text>
+      <View style={styles.background}>
+        <View style={styles.menuContainer}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.welcome}>
+              Available{'\n'}Questionnaires:
+            </Text>
+          </View>
+          <View style={styles.itemContainer}>
+            <Button
+              onPress={() => this.props.navigation.navigate('Pull')}
+              title="Test a REST pull."
+              color="#606060"
+              fontSize="30"
+            />
+            <Button
+              onPress={this._onPressNothing}
+              title="This button does nothing."
+              color="#606060"
+              fontSize="30"
+            />
+            <Button
+              onPress={this._onPressNothing}
+              title="This button also does nothing."
+              color="#606060"
+              fontSize="30"
+            />
+          </View>
+        </View>
       </View>
     );
   }
 }
 
+class PullScreen extends Component<Props> {
+
+  constructor(props){
+    super(props);
+    this.state ={ fetched: false}
+  }
+
+  static navigationOptions = {
+    header: null,
+  };
+
+  componentDidMount() {
+    return fetch('https://jsonplaceholder.typicode.com/posts/1')
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({
+          fetched: true,
+          data: responseJson.title,
+        }, function(){
+
+        });
+      })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  render() {
+    let data = this.state.fetched ? this.state.data : ' ';
+    return (
+      <View style={styles.background}>
+        <View style={styles.menuContainer}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.welcome}>
+              REST Pull Test
+            </Text>
+          </View>
+          <View style={styles.itemContainer}>
+            <Text style={styles.menuItem}>
+              {data}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+const NavStack = StackNavigator(
+  {
+    Home: {
+      screen: HomeScreen,
+    },
+    Pull: {
+      screen: PullScreen,
+    },
+  },
+  {
+    initialRouteName: 'Home',
+  }
+);
+
+export default class App extends React.Component<Props> {
+  render() {
+    return <NavStack />
+  }
+}
+
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+  },
+  menuContainer: {
+    width: '90%',
+    height: '80%',
+  },
+  titleContainer: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  itemContainer: {
+    width: '100%',
+    flex: 3,
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   welcome: {
-    fontSize: 20,
+    fontSize: 26,
+    fontWeight: 'bold',
     textAlign: 'center',
     margin: 10,
+    color: '#000000'
   },
-  instructions: {
+  menuItem: {
+    width: '90%',
+    fontSize: 18,
+    color: '#606060',
     textAlign: 'center',
-    color: '#333333',
     marginBottom: 5,
   },
 });
