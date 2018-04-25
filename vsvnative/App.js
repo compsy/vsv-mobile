@@ -67,7 +67,7 @@ class PullScreen extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state ={ fetched: false}
+    this.state ={ fetched: false, progress: 1}
   }
 
   static navigationOptions = {
@@ -75,12 +75,12 @@ class PullScreen extends Component<Props> {
   };
 
   componentDidMount() {
-    return fetch('https://jsonplaceholder.typicode.com/posts/1')
+    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
     .then((response) => response.json())
     .then((responseJson) => {
       this.setState({
           fetched: true,
-          data: responseJson.title,
+          questionnaireContent: responseJson.content,
         }, function(){
 
         });
@@ -91,7 +91,8 @@ class PullScreen extends Component<Props> {
   }
 
   render() {
-    let data = this.state.fetched ? this.state.data : ' ';
+    let qTitle = this.state.fetched ?
+      this.state.questionnaireContent[this.state.progress].title : 'Loading...';
     return (
       <View style={styles.background}>
         <View style={styles.menuContainer}>
@@ -102,8 +103,20 @@ class PullScreen extends Component<Props> {
           </View>
           <View style={styles.itemContainer}>
             <Text style={styles.menuItem}>
-              {data}
+              {qTitle}
             </Text>
+          </View>
+          <View style={styles.navContainer}>
+            <Button
+              onPress={() => this.setState({ progress: this.state.progress - 1 }) }
+              title="Back"
+              color="#606060"
+            />
+            <Button
+              onPress={() => this.setState({ progress: this.state.progress + 1 }) }
+              title="Next"
+              color="#606060"
+            />
           </View>
         </View>
       </View>
@@ -153,8 +166,23 @@ const styles = StyleSheet.create({
   itemContainer: {
     width: '100%',
     flex: 3,
+    flexDirection: 'column',
     justifyContent: 'space-evenly',
     alignItems: 'center',
+  },
+  navContainer: {
+    width: '90%',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  backButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  nextButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   welcome: {
     fontSize: 26,
