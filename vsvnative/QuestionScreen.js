@@ -1,8 +1,3 @@
-/**
- * U-Can-Act Native App
- * https://github.com/compsy/svs-mobile
- * @flow
- */
 import React, { Component } from 'react';
 import {
   Platform,
@@ -13,48 +8,85 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import PullScreen from './PullScreen';
-import CompScreen from './CompScreen';
-import QuestionScreen from './QuestionScreen';
 
 
-class HomeScreen extends React.Component<Props> {
+export default class QuestionScreen extends Component<Props> {
 
-  _onPressNothing() {
-    Alert.alert('I told you this does nothing.')
+  constructor(props){
+    super(props);
+    this.state ={ fetched: "false", progress: 1}
   }
 
   static navigationOptions = {
     header: null,
   };
 
+  componentDidMount() {
+    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
+    .then((response) => {
+      if(response.status == 200) {
+        return response.json();
+      } else {
+        this.setState({
+          fetched: "failed",
+          error: response.status,
+        })
+      }
+    })
+    .then((responseJson) => {
+      if (!(this.state.fetched === "failed")) {
+        this.setState({
+          fetched: "true",
+          questionnaireContent: responseJson.content,
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  contentText() {
+    switch(this.state.fetched) {
+      case "true":
+        return this.state.questionnaireContent[this.state.progress].title;
+        break;
+
+      case "false":
+        return "Loading...";
+        break;
+
+      case "failed":
+        return "Failed to fetch from API.\nError Code: " + this.state.error;
+        break;
+    }
+  }
+
   render() {
+
     return (
       <View style={styles.background}>
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
             <Text style={styles.welcome}>
-              Available{'\n'}Questionnaires:
+              Question:
             </Text>
           </View>
           <View style={styles.itemContainer}>
+            <Text style={styles.menuItem}>
+              {this.contentText()}
+            </Text>
+          </View>
+          <View style={styles.navContainer}>
             <Button
-              onPress={() => this.props.navigation.navigate('Pull')}
-              title="Test a REST pull."
+              onPress={() => this.setState({ progress: this.state.progress - 1 }) }
+              title="Back"
               color="#606060"
-              fontSize="30"
             />
             <Button
-              onPress={() => this.props.navigation.navigate('Components')}
-              title="Test Components."
+              onPress={() => this.setState({ progress: this.state.progress + 1 }) }
+              title="Next"
               color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button also does nothing."
-              color="#606060"
-              fontSize="30"
             />
           </View>
         </View>
@@ -63,32 +95,6 @@ class HomeScreen extends React.Component<Props> {
   }
 }
 
-
-const NavStack = StackNavigator(
-  {
-    Home: {
-      screen: HomeScreen,
-    },
-    Pull: {
-      screen: PullScreen,
-    },
-    Components: {
-      screen: CompScreen,
-    },
-    Question: {
-      screen: QuestionScreen,
-    }
-  },
-  {
-    initialRouteName: 'Home',
-  }
-);
-
-export default class App extends React.Component<Props> {
-  render() {
-    return <NavStack />
-  }
-}
 
 const styles = StyleSheet.create({
   background: {

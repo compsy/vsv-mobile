@@ -1,8 +1,3 @@
-/**
- * U-Can-Act Native App
- * https://github.com/compsy/svs-mobile
- * @flow
- */
 import React, { Component } from 'react';
 import {
   Platform,
@@ -13,80 +8,65 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import PullScreen from './PullScreen';
-import CompScreen from './CompScreen';
-import QuestionScreen from './QuestionScreen';
 
+export default class PullScreen extends Component<Props> {
 
-class HomeScreen extends React.Component<Props> {
-
-  _onPressNothing() {
-    Alert.alert('I told you this does nothing.')
+  constructor(props){
+    super(props);
+    this.state ={ fetched: false, progress: 1}
   }
 
   static navigationOptions = {
     header: null,
   };
 
+  componentDidMount() {
+    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({
+          fetched: true,
+          questionnaireContent: responseJson.content,
+        }, function(){
+
+        });
+      })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
   render() {
+    let qTitle = this.state.fetched ?
+      this.state.questionnaireContent[this.state.progress].title : 'Loading...';
     return (
       <View style={styles.background}>
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
             <Text style={styles.welcome}>
-              Available{'\n'}Questionnaires:
+              REST Pull Test
             </Text>
           </View>
           <View style={styles.itemContainer}>
+            <Text style={styles.menuItem}>
+              {qTitle}
+            </Text>
+          </View>
+          <View style={styles.navContainer}>
             <Button
-              onPress={() => this.props.navigation.navigate('Pull')}
-              title="Test a REST pull."
+              onPress={() => this.setState({ progress: this.state.progress - 1 }) }
+              title="Back"
               color="#606060"
-              fontSize="30"
             />
             <Button
-              onPress={() => this.props.navigation.navigate('Components')}
-              title="Test Components."
+              onPress={() => this.setState({ progress: this.state.progress + 1 }) }
+              title="Next"
               color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button also does nothing."
-              color="#606060"
-              fontSize="30"
             />
           </View>
         </View>
       </View>
     );
-  }
-}
-
-
-const NavStack = StackNavigator(
-  {
-    Home: {
-      screen: HomeScreen,
-    },
-    Pull: {
-      screen: PullScreen,
-    },
-    Components: {
-      screen: CompScreen,
-    },
-    Question: {
-      screen: QuestionScreen,
-    }
-  },
-  {
-    initialRouteName: 'Home',
-  }
-);
-
-export default class App extends React.Component<Props> {
-  render() {
-    return <NavStack />
   }
 }
 
