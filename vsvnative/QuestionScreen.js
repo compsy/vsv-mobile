@@ -8,13 +8,16 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import CheckQuestion from './Components/CheckQuestion';
 
 
 export default class QuestionScreen extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state ={ fetched: "false", progress: 1}
+    this.state ={ fetched: "false", progress: 0}
+    this.onPressBack = this.onPressBack.bind(this);
+    this.onPressNext = this.onPressNext.bind(this);
   }
 
   static navigationOptions = {
@@ -22,7 +25,9 @@ export default class QuestionScreen extends Component<Props> {
   };
 
   componentDidMount() {
-    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
+    return fetch(
+      'https://vsvproject-staging.herokuapp.com/api/v1/questionnaire/student_diary'
+    )
     .then((response) => {
       if(response.status == 200) {
         return response.json();
@@ -37,7 +42,8 @@ export default class QuestionScreen extends Component<Props> {
       if (!(this.state.fetched === "failed")) {
         this.setState({
           fetched: "true",
-          questionnaireContent: responseJson.content,
+          qContent: responseJson.content,
+          qLength: responseJson.content.length,
         })
       }
     })
@@ -49,21 +55,66 @@ export default class QuestionScreen extends Component<Props> {
   contentText() {
     switch(this.state.fetched) {
       case "true":
-        return this.state.questionnaireContent[this.state.progress].title;
+        if (this.state.qContent[this.state.progress].type === "checkbox") {
+          return (
+            <CheckQuestion data={this.state.qContent[this.state.progress]}>
+            </CheckQuestion>
+          );
+        } else {
+          return(
+            <Text style={styles.menuItem}>
+              {this.state.qContent[this.state.progress].type}
+            </Text>
+          );
+        }
         break;
 
       case "false":
-        return "Loading...";
+        return class extends Component<Props> {
+          render() {
+            return(
+              <Text style={styles.menuItem}>
+                Loading...
+              </Text>
+            );
+          }
+        };
         break;
 
       case "failed":
-        return "Failed to fetch from API.\nError Code: " + this.state.error;
+        return(
+          <Text style={styles.menuItem}>
+            Failed to fetch from API.\nError Code: {this.state.error}
+          </Text>
+        );
         break;
     }
   }
 
+  /**
+  * On Press Handlers
+  */
+
+  onPressNext() {
+    if(this.state.progress + 1 < this.state.qLength) {
+      this.setState({ progress: this.state.progress + 1 });
+    }
+  }
+
+  onPressBack() {
+    if(this.state.progress > 0) {
+      this.setState({ progress: this.state.progress - 1 });
+    }
+  }
+
+
   render() {
 
+    if (this.state.fetched === "true") {
+      progressText = (this.state.progress + 1) +  " of " + this.state.qLength;
+    } else {
+      progressText = "";
+    }
     return (
       <View style={styles.background}>
         <View style={styles.menuContainer}>
@@ -73,18 +124,19 @@ export default class QuestionScreen extends Component<Props> {
             </Text>
           </View>
           <View style={styles.itemContainer}>
-            <Text style={styles.menuItem}>
-              {this.contentText()}
-            </Text>
+            {this.contentText()}
           </View>
           <View style={styles.navContainer}>
             <Button
-              onPress={() => this.setState({ progress: this.state.progress - 1 }) }
+              onPress={this.onPressBack}
               title="Back"
               color="#606060"
             />
+            <Text style={styles.progressIndicator}>
+              {progressText}
+            </Text>
             <Button
-              onPress={() => this.setState({ progress: this.state.progress + 1 }) }
+              onPress={this.onPressNext}
               title="Next"
               color="#606060"
             />
@@ -127,14 +179,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  backButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  nextButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+  progressIndicator: {
+    fontSize: 12,
+    color: '#606060',
+
   },
   welcome: {
     fontSize: 26,

@@ -13,7 +13,7 @@ class CheckContent {
   constructor(data) {
     //required
     id = data.id;
-    title = data,title;
+    this.title = data.title;
     options = data.options;
     //allowed
     section_start = data.section_start;
@@ -28,15 +28,24 @@ class CheckContent {
   }
 
   getTitle() {
-    return class Title extends Component<Props> {
+    return(
+      <Text stye={styles.title}>
+        {this.title}
+      </Text>
+    );
+  }
+
+  getOptions() {
+    return class Options extends Component<Props> {
       render() {
-        <Text style{{
-          fontSize: 24,
-          fontWeight: 'bold',
-          textAlign: 'center',
-        }}>
-          {this.title}
-        </Text>
+        const numOptions = this.options.length;
+        var optionComponents;
+        var component;
+        for(i=0; i<numOptions; i++) {
+          component = new CheckBox(this.options[0]);
+          optionComponents.push(component);
+        }
+        return optionComponents;
       }
     }
   }
@@ -46,78 +55,18 @@ export default class CheckQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state ={ fetched: "false", progress: 0}
+    this.state = { content: new CheckContent(props.data) };
   }
 
   static navigationOptions = {
     header: null,
   };
 
-  componentDidMount() {
-    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
-    .then((response) => {
-      if(response.status == 200) {
-        return response.json();
-      } else {
-        this.setState({
-          fetched: "failed",
-          error: response.status,
-        })
-      }
-    })
-    .then((responseJson) => {
-      if (!(this.state.fetched === "failed")) {
-        this.setState({
-          fetched: "true",
-          content: new CheckContent(responseJson.content[0]),
-        })
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-
-  contentText() {
-    switch(this.state.fetched) {
-      case "true":
-        return this.state.content.getTitle;
-        break;
-
-      case "false":
-        return "Loading...";
-        break;
-
-      case "failed":
-        return "Failed to fetch from API.\nError Code: " + this.state.error;
-        break;
-    }
-  }
-
   render() {
-
+    var title = this.state.content.getTitle();
     return (
-      <View style={styles.menuContainer}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.welcome}>
-
-          </Text>
-        </View>
-        <View style={styles.itemContainer}>
-          {this.contentText()}
-        </View>
-        <View style={styles.navContainer}>
-          <Button
-            onPress={() => this.setState({ progress: this.state.progress - 1 }) }
-            title="Back"
-            color="#606060"
-          />
-          <Button
-            onPress={() => this.setState({ progress: this.state.progress + 1 }) }
-            title="Next"
-            color="#606060"
-          />
-        </View>
+      <View>
+        {title}
       </View>
     );
   }
@@ -125,13 +74,6 @@ export default class CheckQuestion extends Component<Props> {
 
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-  },
   menuContainer: {
     width: '90%',
     height: '80%',
@@ -164,11 +106,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  welcome: {
+  title: {
     fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
-    margin: 10,
     color: '#000000'
   },
   menuItem: {

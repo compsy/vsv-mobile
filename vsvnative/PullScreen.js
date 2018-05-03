@@ -21,7 +21,7 @@ export default class PullScreen extends Component<Props> {
   };
 
   componentDidMount() {
-    return fetch('https://vsvproject-staging-pr-385.herokuapp.com/api/v1/questionnaire/dagboek_studenten')
+    return fetch('https://vsvproject-staging.herokuapp.com/api/v1/questionnaire/student_diary')
     .then((response) => response.json())
     .then((responseJson) => {
       this.setState({
