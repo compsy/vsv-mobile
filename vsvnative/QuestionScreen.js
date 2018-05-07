@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import CheckQuestion from './Components/CheckQuestion';
+import RadioQuestion from './Components/RadioQuestion';
 
 
 export default class QuestionScreen extends Component<Props> {
@@ -53,21 +54,36 @@ export default class QuestionScreen extends Component<Props> {
     });
   }
 
+  getQuestionComponent() {
+    switch(this.state.qContent[this.state.progress].type) {
+
+      case "checkbox":
+        return(
+          <CheckQuestion
+            data={this.state.qContent[this.state.progress]}
+          />
+        );
+
+      case "radio":
+        return(
+          <RadioQuestion
+            data={this.state.qContent[this.state.progress]}
+          />
+        );
+
+      default:
+        return(
+          <Text style={styles.title}>
+            {this.state.qContent[this.state.progress].type}
+          </Text>
+      );
+    }
+  }
+
   getQuestionContent() {
     switch(this.state.fetched) {
       case "true":
-        if (this.state.qContent[this.state.progress].type === "checkbox") {
-          return (
-            <CheckQuestion data={this.state.qContent[this.state.progress]}>
-            </CheckQuestion>
-          );
-        } else {
-          return(
-            <Text style={styles.menuItem}>
-              {this.state.qContent[this.state.progress].type}
-            </Text>
-          );
-        }
+          return this.getQuestionComponent()
         break;
 
       case "false":
@@ -115,10 +131,6 @@ export default class QuestionScreen extends Component<Props> {
     var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>
-        <StatusBar
-          backgroundColour="#000000"
-          barStyle="default"
-        />
         <View height={25}></View>
         <View style={styles.qContentContainer}>
           {qContentComponent}
@@ -184,7 +196,7 @@ const styles = StyleSheet.create({
     color: '#606060',
 
   },
-  welcome: {
+  title: {
     fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',

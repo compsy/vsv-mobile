@@ -13,7 +13,7 @@ import { CheckBox } from 'react-native-elements';
 /**
 * Data Container Class
 */
-class CheckContent {
+class RadioContent {
   constructor(data) {
     //required
     this.id = data.id;
@@ -35,18 +35,17 @@ class CheckContent {
   getTitle() {
     return(
       <Text style={styles.title}>
-        {this.title}
+        {this.title }
       </Text>
     );
   }
 
 }
 
-class CheckBoxMulti extends Component<Props> {
+class RadioMulti extends Component<Props> {
 
   constructor(props) {
       super(props);
-      this.state = {checked: false};
       this.updateChecked = this.updateChecked.bind(this);
   }
 
@@ -57,16 +56,18 @@ class CheckBoxMulti extends Component<Props> {
   render() {
     return(
       <CheckBox
-        checked={this.props.checked}
+        checked={this.props.checked==this.props.index}
         onPress={this.updateChecked}
         title = {this.props.title}
+        checkedIcon='dot-circle-o'
+        uncheckedIcon='circle-o'
       />
     );
   }
 
 }
 
-class CheckGroup extends Component<Props> {
+class RadioGroup extends Component<Props> {
 
   constructor(props) {
     super(props);
@@ -75,9 +76,7 @@ class CheckGroup extends Component<Props> {
     this.updateParent = this.updateParent.bind(this);
   }
 
-  updateChecked(box) {
-    var checked = this.props.checked;
-    checked[box] = !checked[box];
+  updateChecked(checked) {
     this.updateParent(checked);
   }
 
@@ -85,59 +84,46 @@ class CheckGroup extends Component<Props> {
     this.props.updateParent(checked);
   }
 
-  genCheckboxes() {
+  genRadios() {
     return(
       this.props.options.map( (t,i) =>
-                              <CheckBoxMulti
+                              <RadioMulti
                                 title={typeof t === "string" ? t : t.title}
                                 key={i}
                                 index={i}
-                                checked={this.props.checked[i]}
+                                checked={this.props.checked}
                                 onPress={this.updateChecked}
                               />)
     );
   }
 
   render() {
-    var checkboxes = this.genCheckboxes();
+    var radios = this.genRadios();
     return(
-      <View>{checkboxes}</View>
+      <View>{radios}</View>
     );
   }
 
 }
 
-export default class CheckQuestion extends Component<Props> {
+export default class RadioQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    var checked = [];
-    this.length = this.props.data.options.length;
-    for (i=0; i<this.length; i++) {
-      checked[i] = false;
-    }
+    checked = -1;
     this.state = {
-                    content: new CheckContent(props.data),
+                    content: new RadioContent(props.data),
                     checked: checked,
                  };
-    this.getSelected = this.getSelected.bind(this);
-    this.updateCheckBoxes = this.updateCheckBoxes.bind(this);
+    this.updateRadios = this.updateRadios.bind(this);
   }
 
   static navigationOptions = {
     header: null
   };
 
-  updateCheckBoxes(checked) {
+  updateRadios(checked) {
     this.setState({checked: checked})
-  }
-
-  getSelected() {
-    var selected = [];
-    for (i=0; i<this.length; i++) {
-      if (this.state.checked[i]) { selected.push(i); }
-    }
-    return selected;
   }
 
   render() {
@@ -146,12 +132,12 @@ export default class CheckQuestion extends Component<Props> {
       <View style={styles.mainContainer}>
         {title}
         <View style={styles.optionsContainer}>
-          <CheckGroup
+          <RadioGroup
             options={this.state.content.options}
-            updateParent={this.updateCheckBoxes}
+            updateParent={this.updateRadios}
             checked={this.state.checked}
           />
-          <Text>{this.getSelected()}</Text>
+          <Text>{this.state.checked}</Text>
         </View>
       </View>
     );
