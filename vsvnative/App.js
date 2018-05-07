@@ -13,8 +13,6 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import PullScreen from './PullScreen';
-import CompScreen from './CompScreen';
 import QuestionScreen from './QuestionScreen';
 
 
@@ -34,19 +32,19 @@ class HomeScreen extends React.Component<Props> {
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
             <Text style={styles.welcome}>
-              Available{'\n'}Questionnaires:
+              Main Menu:
             </Text>
           </View>
           <View style={styles.itemContainer}>
             <Button
-              onPress={() => this.props.navigation.navigate('Pull')}
-              title="Test a REST pull."
+              onPress={() => this.props.navigation.navigate('Question')}
+              title="Test question screen."
               color="#606060"
               fontSize="30"
             />
             <Button
-              onPress={() => this.props.navigation.navigate('Components')}
-              title="Test Components."
+              onPress={this._onPressNothing}
+              title="This button does nothing."
               color="#606060"
               fontSize="30"
             />
@@ -68,12 +66,6 @@ const NavStack = StackNavigator(
   {
     Home: {
       screen: HomeScreen,
-    },
-    Pull: {
-      screen: PullScreen,
-    },
-    Components: {
-      screen: CompScreen,
     },
     Question: {
       screen: QuestionScreen,

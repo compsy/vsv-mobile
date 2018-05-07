@@ -8,13 +8,19 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { CheckBox } from 'react-native-elements';
 
+/**
+* Data Container Class
+*/
 class CheckContent {
-  constructor(data) {
+  constructor(data, component) {
     //required
-    id = data.id;
+    this.updateCheckBoxes = component;
+    this.id = data.id;
     this.title = data.title;
-    options = data.options;
+    this.options = data.options;
+    this.numOptions = this.options.length;
     //allowed
     section_start = data.section_start;
     hidden =  data.hidden;
@@ -25,48 +31,131 @@ class CheckContent {
     otherwise_tooltip = data.otherwise_tooltip; //necessary?
     show_after = data.show_after;
     section_end = data.section_end;
+
   }
 
   getTitle() {
     return(
-      <Text stye={styles.title}>
-        {this.title}
+      <Text style={styles.title}>
+        {this.title }
       </Text>
     );
   }
 
-  getOptions() {
-    return class Options extends Component<Props> {
-      render() {
-        const numOptions = this.options.length;
-        var optionComponents;
-        var component;
-        for(i=0; i<numOptions; i++) {
-          component = new CheckBox(this.options[0]);
-          optionComponents.push(component);
-        }
-        return optionComponents;
-      }
-    }
+}
+
+class CheckBoxMulti extends Component<Props> {
+
+  constructor(props) {
+      super(props);
+      this.state = {checked: false};
+      this.updateChecked = this.updateChecked.bind(this);
   }
+
+  updateChecked() {
+    this.props.onPress(this.props.index)
+  }
+
+  render() {
+    return(
+      <CheckBox
+        checked={this.props.checked}
+        onPress={this.updateChecked}
+        title = {this.props.title}
+      />
+    );
+  }
+
+}
+
+class CheckGroup extends Component<Props> {
+
+  constructor(props) {
+    super(props);
+    this.state = { numOptions: this.props.options.length, checked: props.checked }
+    this.updateChecked = this.updateChecked.bind(this);
+    this.updateParent = this.updateParent.bind(this);
+  }
+
+  updateChecked(box) {
+    var checked = this.state.checked;
+    checked[box] = !checked[box];
+    this.setState({checked: checked});
+    this.updateParent(checked);
+  }
+
+  updateParent(checked) {
+    this.props.updateParent(checked);
+  }
+
+  genCheckboxes() {
+    return(
+      this.props.options.map( (t,i) =>
+                                      <CheckBoxMulti
+                                        title={t}
+                                        key={i}
+                                        index={i}
+                                        checked={this.state.checked[i]}
+                                        onPress={this.updateChecked}
+                                      /> )
+    );
+  }
+
+  render() {
+    var checkboxes = this.genCheckboxes();
+    return(
+      <View>{checkboxes}<Text>{this.state.selected}</Text></View>
+    );
+  }
+
 }
 
 export default class CheckQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state = { content: new CheckContent(props.data) };
+    var checked = [];
+    this.length = this.props.data.options.length;
+    for (i=0; i<this.length; i++) {
+      checked[i] = false;
+    }
+    this.state = {
+                    content: new CheckContent(props.data),
+                    checked: checked,
+                 };
+    this.getSelected = this.getSelected.bind(this);
+    this.updateCheckBoxes = this.updateCheckBoxes.bind(this);
   }
 
   static navigationOptions = {
-    header: null,
+    header: null
   };
+
+  updateCheckBoxes(checked) {
+    this.setState({checked: checked})
+  }
+
+  getSelected() {
+    var selected = [];
+    for (i=0; i<this.length; i++) {
+      if (this.state.checked[i]) { selected.push(i); }
+    }
+    return selected;
+  }
 
   render() {
     var title = this.state.content.getTitle();
     return (
-      <View>
+      <View style={styles.mainContainer}>
         {title}
+        <View style={styles.optionsContainer}>
+          <CheckGroup
+            options={this.state.content.options}
+            updateParent={this.updateCheckBoxes}
+            checked={this.state.checked}
+          />
+          <Text>{this.getSelected()}</Text>
+        </View>
       </View>
     );
   }
@@ -74,49 +163,19 @@ export default class CheckQuestion extends Component<Props> {
 
 
 const styles = StyleSheet.create({
-  menuContainer: {
-    width: '90%',
-    height: '80%',
-  },
-  titleContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  itemContainer: {
-    width: '100%',
-    flex: 3,
+  mainContainer: {
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
+    justifyContent: 'space-evenly'
   },
-  navContainer: {
-    width: '90%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  backButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  nextButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+  optionsContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#000000'
-  },
-  menuItem: {
-    width: '90%',
-    fontSize: 18,
-    color: '#606060',
-    textAlign: 'center',
-    marginBottom: 5,
   },
 });

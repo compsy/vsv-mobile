@@ -5,7 +5,8 @@ import {
   Text,
   View,
   Button,
-  Alert
+  Alert,
+  StatusBar
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import CheckQuestion from './Components/CheckQuestion';
@@ -21,7 +22,7 @@ export default class QuestionScreen extends Component<Props> {
   }
 
   static navigationOptions = {
-    header: null,
+    header: null
   };
 
   componentDidMount() {
@@ -52,7 +53,7 @@ export default class QuestionScreen extends Component<Props> {
     });
   }
 
-  contentText() {
+  getQuestionContent() {
     switch(this.state.fetched) {
       case "true":
         if (this.state.qContent[this.state.progress].type === "checkbox") {
@@ -70,15 +71,11 @@ export default class QuestionScreen extends Component<Props> {
         break;
 
       case "false":
-        return class extends Component<Props> {
-          render() {
-            return(
-              <Text style={styles.menuItem}>
-                Loading...
-              </Text>
-            );
-          }
-        };
+        return(
+          <Text style={styles.menuItem}>
+            Loading...
+          </Text>
+        );
         break;
 
       case "failed":
@@ -115,32 +112,31 @@ export default class QuestionScreen extends Component<Props> {
     } else {
       progressText = "";
     }
+    var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>
-        <View style={styles.menuContainer}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.welcome}>
-              Question:
-            </Text>
-          </View>
-          <View style={styles.itemContainer}>
-            {this.contentText()}
-          </View>
-          <View style={styles.navContainer}>
-            <Button
-              onPress={this.onPressBack}
-              title="Back"
-              color="#606060"
-            />
-            <Text style={styles.progressIndicator}>
-              {progressText}
-            </Text>
-            <Button
-              onPress={this.onPressNext}
-              title="Next"
-              color="#606060"
-            />
-          </View>
+        <StatusBar
+          backgroundColour="#000000"
+          barStyle="default"
+        />
+        <View height={25}></View>
+        <View style={styles.qContentContainer}>
+          {qContentComponent}
+        </View>
+        <View style={styles.navContainer}>
+          <Button
+            onPress={this.onPressBack}
+            title="Back"
+            color="#606060"
+          />
+          <Text style={styles.progressIndicator}>
+            {progressText}
+          </Text>
+          <Button
+            onPress={this.onPressNext}
+            title="Next"
+            color="#606060"
+          />
         </View>
       </View>
     );
@@ -156,7 +152,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
   },
-  menuContainer: {
+  qContentContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
     width: '90%',
     height: '80%',
   },
