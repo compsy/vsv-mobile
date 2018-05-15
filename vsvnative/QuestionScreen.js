@@ -13,7 +13,7 @@ import CheckQuestion from './Components/CheckQuestion';
 import RadioQuestion from './Components/RadioQuestion';
 import RangeQuestion from './Components/RangeQuestion';
 import RawQuestion from './Components/RawQuestion';
-
+import UnsubscribeQuestion from './Components/UnsubscribeQuestion';
 
 export default class QuestionScreen extends Component<Props> {
 
@@ -92,10 +92,21 @@ export default class QuestionScreen extends Component<Props> {
         );
         break
 
+        case "unsubscribe":
+          return(
+            <UnsubscribeQuestion
+              data={this.state.qContent[this.state.progress]}
+            />
+          );
+          break
+
       default:
         return(
           <Text style={styles.title}>
-            {this.state.qContent[this.state.progress].type}
+            {
+              this.state.qContent[this.state.progress].type +
+               " is not a recognised question type."
+             }
           </Text>
         );
     }
