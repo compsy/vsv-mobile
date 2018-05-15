@@ -9,38 +9,8 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { CheckBox } from 'react-native-elements';
+import HTMLView from 'react-native-htmlview';
 
-/**
-* Data Container Class
-*/
-class CheckContent {
-  constructor(data) {
-    //required
-    this.id = data.id;
-    this.title = data.title;
-    this.options = data.options;
-    this.numOptions = this.options.length;
-    //allowed
-    this.section_start = data.section_start;
-    this.hidden =  data.hidden;
-    this.required = data.required;
-    this.tooltip = data.tooltip; //necessary?
-    this.show_otherwise = data.show_otherwise;
-    this.otherwise_label = data.otherwise_label;
-    this.otherwise_tooltip = data.otherwise_tooltip; //necessary?
-    this.show_after = data.show_after;
-    this.section_end = data.section_end;
-  }
-
-  getTitle() {
-    return(
-      <Text style={styles.title}>
-        {this.title}
-      </Text>
-    );
-  }
-
-}
 
 class CheckBoxMulti extends Component<Props> {
 
@@ -54,7 +24,11 @@ class CheckBoxMulti extends Component<Props> {
     this.props.onPress(this.props.index)
   }
 
-  render() {
+  render() {`
+
+
+
+  `
     return(
       <CheckBox
         checked={this.props.checked}
@@ -117,7 +91,6 @@ export default class CheckQuestion extends Component<Props> {
       checked[i] = false;
     }
     this.state = {
-                    content: new CheckContent(props.data),
                     checked: checked,
                  };
     this.getSelected = this.getSelected.bind(this);
@@ -141,13 +114,16 @@ export default class CheckQuestion extends Component<Props> {
   }
 
   render() {
-    var title = this.state.content.getTitle();
+    var title = this.props.data.title;
     return (
       <View style={styles.mainContainer}>
-        {title}
+        <HTMLView
+          stylesheet={titleStyles}
+          value={"<body>" + title + "</body>"}
+        />
         <View style={styles.optionsContainer}>
           <CheckGroup
-            options={this.state.content.options}
+            options={this.props.data.options}
             updateParent={this.updateCheckBoxes}
             checked={this.state.checked}
           />
@@ -174,5 +150,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#000000'
+  },
+});
+
+const titleStyles = StyleSheet.create({
+  body: {
+    fontSize: 28,
+    textAlign: 'center',
+  },
+  strong: {
+    fontWeight: 'bold',
+    fontSize: 28,
   },
 });

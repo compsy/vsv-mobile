@@ -9,38 +9,8 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { CheckBox } from 'react-native-elements';
+import HTMLView from 'react-native-htmlview';
 
-/**
-* Data Container Class
-*/
-class RadioContent {
-  constructor(data) {
-    //required
-    this.id = data.id;
-    this.title = data.title;
-    this.options = data.options;
-    this.numOptions = this.options.length;
-    //allowed
-    this.section_start = data.section_start;
-    this.hidden =  data.hidden;
-    this.required = data.required;
-    this.tooltip = data.tooltip; //necessary?
-    this.show_otherwise = data.show_otherwise;
-    this.otherwise_label = data.otherwise_label;
-    this.otherwise_tooltip = data.otherwise_tooltip; //necessary?
-    this.show_after = data.show_after;
-    this.section_end = data.section_end;
-  }
-
-  getTitle() {
-    return(
-      <Text style={styles.title}>
-        {this.title }
-      </Text>
-    );
-  }
-
-}
 
 class RadioMulti extends Component<Props> {
 
@@ -112,7 +82,6 @@ export default class RadioQuestion extends Component<Props> {
     super(props);
     checked = -1;
     this.state = {
-                    content: new RadioContent(props.data),
                     checked: checked,
                  };
     this.updateRadios = this.updateRadios.bind(this);
@@ -127,13 +96,16 @@ export default class RadioQuestion extends Component<Props> {
   }
 
   render() {
-    var title = this.state.content.getTitle();
+    var title = this.props.data.title;
     return (
       <View style={styles.mainContainer}>
-        {title}
+        <HTMLView
+          stylesheet={titleStyles}
+          value={"<body>" + title + "</body>"}
+        />
         <View style={styles.optionsContainer}>
           <RadioGroup
-            options={this.state.content.options}
+            options={this.props.data.options}
             updateParent={this.updateRadios}
             checked={this.state.checked}
           />
@@ -160,5 +132,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#000000'
+  },
+});
+
+const titleStyles = StyleSheet.create({
+  body: {
+    fontSize: 28,
+    textAlign: 'center',
+  },
+  strong: {
+    fontWeight: 'bold',
+    fontSize: 28,
   },
 });

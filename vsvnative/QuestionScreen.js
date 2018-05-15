@@ -11,6 +11,8 @@ import {
 import { StackNavigator } from 'react-navigation';
 import CheckQuestion from './Components/CheckQuestion';
 import RadioQuestion from './Components/RadioQuestion';
+import RangeQuestion from './Components/RangeQuestion';
+import RawQuestion from './Components/RawQuestion';
 
 
 export default class QuestionScreen extends Component<Props> {
@@ -28,7 +30,7 @@ export default class QuestionScreen extends Component<Props> {
 
   componentDidMount() {
     return fetch(
-      'https://vsvproject-staging.herokuapp.com/api/v1/questionnaire/student_diary'
+      'https://app.u-can-act.nl/api/v1/questionnaire/student_diary'
     )
     .then((response) => {
       if(response.status == 200) {
@@ -55,6 +57,7 @@ export default class QuestionScreen extends Component<Props> {
   }
 
   getQuestionComponent() {
+
     switch(this.state.qContent[this.state.progress].type) {
 
       case "checkbox":
@@ -63,6 +66,7 @@ export default class QuestionScreen extends Component<Props> {
             data={this.state.qContent[this.state.progress]}
           />
         );
+        break
 
       case "radio":
         return(
@@ -70,20 +74,37 @@ export default class QuestionScreen extends Component<Props> {
             data={this.state.qContent[this.state.progress]}
           />
         );
+        break
+
+      case "range":
+        return(
+          <RangeQuestion
+            data={this.state.qContent[this.state.progress]}
+          />
+        );
+        break
+
+      case "raw":
+        return(
+          <RawQuestion
+            data={this.state.qContent[this.state.progress]}
+          />
+        );
+        break
 
       default:
         return(
           <Text style={styles.title}>
             {this.state.qContent[this.state.progress].type}
           </Text>
-      );
+        );
     }
   }
 
   getQuestionContent() {
     switch(this.state.fetched) {
       case "true":
-          return this.getQuestionComponent()
+        return this.getQuestionComponent();
         break;
 
       case "false":
@@ -97,7 +118,7 @@ export default class QuestionScreen extends Component<Props> {
       case "failed":
         return(
           <Text style={styles.menuItem}>
-            Failed to fetch from API.\nError Code: {this.state.error}
+            Failed to fetch from API.{"\n"}Error Code: {this.state.error}
           </Text>
         );
         break;
