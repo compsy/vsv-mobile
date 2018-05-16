@@ -24,11 +24,7 @@ class CheckBoxMulti extends Component<Props> {
     this.props.onPress(this.props.index)
   }
 
-  render() {`
-
-
-
-  `
+  render() {
     return(
       <CheckBox
         checked={this.props.checked}

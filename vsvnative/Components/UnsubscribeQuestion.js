@@ -15,11 +15,27 @@ export default class UnsubscribeQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
+    this.state = {unsubMessage: <View></View>};
+    this.onPressUnsubButton = this.onPressUnsubButton.bind(this);
+    this.quitScreen = this.quitScreen.bind(this);
   }
 
   static navigationOptions = {
     header: null
   };
+
+  quitScreen() {
+    this.props.quitScreen();
+  }
+
+  onPressUnsubButton() {
+    const unsubComponent = <Text style={styles.unsubbed}>
+                              Successfully Unsubscribed!
+                           </Text>;
+    this.setState({ unsubMessage: unsubComponent });
+    setTimeout( this.quitScreen, 1000);
+  }
+
 
   render() {
     var content = this.props.data.content;
@@ -35,7 +51,9 @@ export default class UnsubscribeQuestion extends Component<Props> {
           <Button
             title={this.props.data.button_text}
             color='#009A74'
+            onPress={this.onPressUnsubButton}
           />
+          {this.state.unsubMessage}
         </View>
       </View>
     );
@@ -60,6 +78,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  unsubbed: {
+    color: '#000',
+  }
 });
 
 const unsubStyles = StyleSheet.create({

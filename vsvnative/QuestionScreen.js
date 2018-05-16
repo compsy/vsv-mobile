@@ -22,6 +22,7 @@ export default class QuestionScreen extends Component<Props> {
     this.state ={ fetched: "false", progress: 0}
     this.onPressBack = this.onPressBack.bind(this);
     this.onPressNext = this.onPressNext.bind(this);
+    this.quitScreen = this.quitScreen.bind(this);
   }
 
   static navigationOptions = {
@@ -96,6 +97,7 @@ export default class QuestionScreen extends Component<Props> {
           return(
             <UnsubscribeQuestion
               data={this.state.qContent[this.state.progress]}
+              quitScreen={this.quitScreen}
             />
           );
           break
@@ -134,6 +136,10 @@ export default class QuestionScreen extends Component<Props> {
         );
         break;
     }
+  }
+
+  quitScreen() {
+    this.props.navigation.goBack();
   }
 
   /**
