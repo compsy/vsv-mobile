@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -85,6 +85,7 @@ export default class RadioQuestion extends Component<Props> {
                     checked: checked,
                  };
     this.updateRadios = this.updateRadios.bind(this);
+    this.tooltipOpen = this.tooltipOpen.bind(this);
   }
 
   static navigationOptions = {
@@ -95,13 +96,46 @@ export default class RadioQuestion extends Component<Props> {
     this.setState({checked: checked})
   }
 
+  tooltipOpen(text){
+    this.props.openPopup(
+      <Text>{text}</Text>
+    );
+  }
+
+  componentWillReceiveProps(newProps) {
+    if(newProps.index != this.props.index) {
+      this.props.updateUserInput(this.state.checked, this.props.index);
+    }
+    if (typeof newProps.checked !== "undefined") {
+      this.setState({checked: newProps.checked});
+    }
+  }
+
+  componentWillMount() {
+    if (typeof this.props.checked !== "undefined") {
+      this.setState({checked: this.props.checked});
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.updateUserInput(this.state.checked, this.props.index);
+  }
+
   render() {
     var title = this.props.data.title;
     return (
+      <View>
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
+        />
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen("Test text");}}
         />
         <View style={styles.optionsContainer}>
           <RadioGroup
@@ -112,6 +146,7 @@ export default class RadioQuestion extends Component<Props> {
           <Text>{this.state.checked}</Text>
         </View>
       </View>
+    </View>
     );
   }
 }
@@ -123,7 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly'
   },
   optionsContainer: {
-    flex: 1,
+    flex: 2.5,
     flexDirection: 'column',
     justifyContent: 'center',
   },

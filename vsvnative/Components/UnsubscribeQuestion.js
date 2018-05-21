@@ -29,7 +29,7 @@ export default class UnsubscribeQuestion extends Component<Props> {
   }
 
   onPressUnsubButton() {
-    const unsubComponent = <Text style={styles.unsubbed}>
+    const unsubComponent = <Text>
                               Successfully Unsubscribed!
                            </Text>;
     this.setState({ unsubMessage: unsubComponent });
@@ -78,9 +78,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  unsubbed: {
-    color: '#000',
-  }
 });
 
 const unsubStyles = StyleSheet.create({

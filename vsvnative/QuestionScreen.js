@@ -9,6 +9,8 @@ import {
   StatusBar
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { Icon } from 'react-native-elements';
+import PopupDialog from 'react-native-popup-dialog';
 import CheckQuestion from './Components/CheckQuestion';
 import RadioQuestion from './Components/RadioQuestion';
 import RangeQuestion from './Components/RangeQuestion';
@@ -23,6 +25,8 @@ export default class QuestionScreen extends Component<Props> {
     this.onPressBack = this.onPressBack.bind(this);
     this.onPressNext = this.onPressNext.bind(this);
     this.quitScreen = this.quitScreen.bind(this);
+    this.openPopup = this.openPopup.bind(this);
+    this.keepUserInput = this.keepUserInput.bind(this);
   }
 
   static navigationOptions = {
@@ -49,6 +53,7 @@ export default class QuestionScreen extends Component<Props> {
           fetched: "true",
           qContent: responseJson.content,
           qLength: responseJson.content.length,
+          userInput: []
         })
       }
     })
@@ -65,6 +70,9 @@ export default class QuestionScreen extends Component<Props> {
         return(
           <CheckQuestion
             data={this.state.qContent[this.state.progress]}
+            index={this.state.progress}
+            checked={this.state.userInput[this.state.progress]}
+            updateUserInput={this.keepUserInput}
           />
         );
         break
@@ -73,6 +81,10 @@ export default class QuestionScreen extends Component<Props> {
         return(
           <RadioQuestion
             data={this.state.qContent[this.state.progress]}
+            openPopup={this.openPopup}
+            index={this.state.progress}
+            checked={this.state.userInput[this.state.progress]}
+            updateUserInput={this.keepUserInput}
           />
         );
         break
@@ -81,6 +93,9 @@ export default class QuestionScreen extends Component<Props> {
         return(
           <RangeQuestion
             data={this.state.qContent[this.state.progress]}
+            index={this.state.progress}
+            value={this.state.userInput[this.state.progress]}
+            updateUserInput={this.keepUserInput}
           />
         );
         break
@@ -138,14 +153,9 @@ export default class QuestionScreen extends Component<Props> {
     }
   }
 
-  quitScreen() {
-    this.props.navigation.goBack();
-  }
-
   /**
   * On Press Handlers
   */
-
   onPressNext() {
     if(this.state.progress + 1 < this.state.qLength) {
       this.setState({ progress: this.state.progress + 1 });
@@ -158,7 +168,28 @@ export default class QuestionScreen extends Component<Props> {
     }
   }
 
+  /**
+  * Callback Functions
+  */
+  openPopup(popupData) {
+    this.setState({ popupData: popupData });
+    this.popup.show();
+  }
 
+  quitScreen() {
+    this.props.navigation.goBack();
+  }
+
+  keepUserInput(input, index) {
+    var userInput = this.state.userInput;
+    userInput[index] = input;
+    this.setState({ userInput: userInput });
+  }
+
+
+  /**
+  * Render Function
+  */
   render() {
 
     if (this.state.fetched === "true") {
@@ -188,6 +219,17 @@ export default class QuestionScreen extends Component<Props> {
             color="#606060"
           />
         </View>
+        <PopupDialog
+          ref={(popup) => { this.popup = popup;}}
+        >
+          <Icon
+            style={{alignSelf:'flex-end'}}
+            onPress={ () => {this.popup.dismiss();}}
+            type='feather'
+            name='x'
+          />
+          {this.state.popupData}
+        </PopupDialog>
       </View>
     );
   }
