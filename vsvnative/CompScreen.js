@@ -1,8 +1,3 @@
-/**
- * U-Can-Act Native App
- * https://github.com/compsy/svs-mobile
- * @flow
- */
 import React, { Component } from 'react';
 import {
   Platform,
@@ -13,10 +8,11 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import QuestionScreen from './QuestionScreen';
 
-
-class HomeScreen extends React.Component<Props> {
+export default class CompScreen extends React.Component<Props> {
+  _onPressPull() {
+    this.props.navigation.navigate('Pull')
+  }
 
   _onPressNothing() {
     Alert.alert('I told you this does nothing.')
@@ -32,27 +28,24 @@ class HomeScreen extends React.Component<Props> {
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
             <Text style={styles.welcome}>
-              Main Menu:
+              Component{'\n'}Test Menu:
             </Text>
           </View>
           <View style={styles.itemContainer}>
             <Button
               onPress={() => this.props.navigation.navigate('Question')}
-              title="Test question screen."
+              title="Test Radio Component"
               color="#606060"
-              fontSize="30"
             />
             <Button
               onPress={this._onPressNothing}
               title="This button does nothing."
               color="#606060"
-              fontSize="30"
             />
             <Button
               onPress={this._onPressNothing}
               title="This button also does nothing."
               color="#606060"
-              fontSize="30"
             />
           </View>
         </View>
@@ -61,26 +54,6 @@ class HomeScreen extends React.Component<Props> {
   }
 }
 
-
-const NavStack = StackNavigator(
-  {
-    Home: {
-      screen: HomeScreen,
-    },
-    Question: {
-      screen: QuestionScreen,
-    }
-  },
-  {
-    initialRouteName: 'Home',
-  }
-);
-
-export default class App extends React.Component<Props> {
-  render() {
-    return <NavStack />
-  }
-}
 
 const styles = StyleSheet.create({
   background: {
