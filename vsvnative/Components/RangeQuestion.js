@@ -9,7 +9,7 @@ import {
   Slider
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -61,16 +61,36 @@ export default class SliderQuestion extends Component<Props> {
     this.setState({value: val})
   }
 
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
+  }
+
   render() {
     var title = this.props.data.title;
     var label1 = this.props.data.labels[0];
     var label2 = this.props.data.labels[1];
+    var tooltipIcon = this.getTooltipIcon();
     return (
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
+        {tooltipIcon}
         <View style={styles.sliderContainer}>
           <Slider
             style={styles.slider}

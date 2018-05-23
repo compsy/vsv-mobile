@@ -70,6 +70,7 @@ export default class QuestionScreen extends Component<Props> {
         return(
           <CheckQuestion
             data={this.state.qContent[this.state.progress]}
+            openPopup={this.openPopup}
             index={this.state.progress}
             checked={this.state.userInput[this.state.progress]}
             updateUserInput={this.keepUserInput}
@@ -93,6 +94,7 @@ export default class QuestionScreen extends Component<Props> {
         return(
           <RangeQuestion
             data={this.state.qContent[this.state.progress]}
+            openPopup={this.openPopup}
             index={this.state.progress}
             value={this.state.userInput[this.state.progress]}
             updateUserInput={this.keepUserInput}
@@ -222,13 +224,19 @@ export default class QuestionScreen extends Component<Props> {
         <PopupDialog
           ref={(popup) => { this.popup = popup;}}
         >
-          <Icon
-            style={{alignSelf:'flex-end'}}
-            onPress={ () => {this.popup.dismiss();}}
-            type='feather'
-            name='x'
-          />
-          {this.state.popupData}
+          <View style={styles.popupContentContainer}>
+            <View style={{flex:1, justifyContent: 'center'}}>
+              <Text style={styles.popupText}>
+                {this.state.popupData}
+              </Text>
+            </View>
+            <Icon
+              style={{alignSelf:'flex-end'}}
+              onPress={ () => {this.popup.dismiss();}}
+              type='feather'
+              name='x'
+            />
+          </View>
         </PopupDialog>
       </View>
     );
@@ -289,5 +297,18 @@ const styles = StyleSheet.create({
     color: '#606060',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  popupContentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 10,
+    borderColor: 'transparent',
+  },
+  popupText: {
+    borderWidth: 5,
+    borderColor: 'transparent',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

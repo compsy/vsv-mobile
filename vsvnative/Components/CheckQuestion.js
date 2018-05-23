@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -66,6 +66,24 @@ class CheckGroup extends Component<Props> {
                                 onPress={this.updateChecked}
                               />)
     );
+  }
+
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
   }
 
   render() {
@@ -130,12 +148,14 @@ export default class CheckQuestion extends Component<Props> {
 
   render() {
     var title = this.props.data.title;
+    var tooltipIcon = this.getTooltipIcon();
     return (
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
+        {tooltipIcon}
         <View style={styles.optionsContainer}>
           <CheckGroup
             options={this.props.data.options}

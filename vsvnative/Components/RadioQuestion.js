@@ -96,10 +96,22 @@ export default class RadioQuestion extends Component<Props> {
     this.setState({checked: checked})
   }
 
-  tooltipOpen(text){
-    this.props.openPopup(
-      <Text>{text}</Text>
-    );
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
   }
 
   componentWillReceiveProps(newProps) {
@@ -123,6 +135,7 @@ export default class RadioQuestion extends Component<Props> {
 
   render() {
     var title = this.props.data.title;
+    var tooltipIcon = this.getTooltipIcon();
     return (
       <View>
       <View style={styles.mainContainer}>
@@ -130,13 +143,7 @@ export default class RadioQuestion extends Component<Props> {
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
-        <Icon
-          style={{flex: 1}}
-          type='ionicon'
-          name='md-information-circle'
-          color='#009A74'
-          onPress={() => {this.tooltipOpen("Test text");}}
-        />
+        {tooltipIcon}
         <View style={styles.optionsContainer}>
           <RadioGroup
             options={this.props.data.options}
