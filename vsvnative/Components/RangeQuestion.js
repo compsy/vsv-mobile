@@ -9,7 +9,7 @@ import {
   Slider
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -31,30 +31,70 @@ export default class SliderQuestion extends Component<Props> {
     header: null
   };
 
-  componentWillReceiveProps(nextProps) {
-    var max = (typeof nextProps.data.max === "number") ? nextProps.data.max : 100;
-    var min = (typeof nextProps.data.min === "number") ? nextProps.data.min : 0;
+  componentWillReceiveProps(newProps) {
+    var max = (typeof newProps.data.max === "number") ? newProps.data.max : 100;
+    var min = (typeof newProps.data.min === "number") ? newProps.data.min : 0;
+    if (newProps.index != this.props.index) {
+      this.updateUserInput();
+    }
     this.setState({
                     value: max/2,
                     sliderMin: min,
                     sliderMax: max
                   });
+    if (typeof newProps.value !== "undefined" && newProps.index != this.props.index) {
+      this.setState({value: newProps.value});
+    }
+  }
+
+  componentWillMount() {
+    if (typeof this.props.value !== "undefined") {
+      this.setState({value: this.props.value});
+    }
+  }
+
+  componentWillUnmount() {
+    this.updateUserInput();
+  }
+
+  updateUserInput() {
+    this.props.updateUserInput(this.state.value, this.props.index, [], []);
   }
 
   updateSliderValue(val) {
     this.setState({value: val})
   }
 
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
+  }
+
   render() {
     var title = this.props.data.title;
     var label1 = this.props.data.labels[0];
     var label2 = this.props.data.labels[1];
+    var tooltipIcon = this.getTooltipIcon();
     return (
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
+        {tooltipIcon}
         <View style={styles.sliderContainer}>
           <Slider
             style={styles.slider}

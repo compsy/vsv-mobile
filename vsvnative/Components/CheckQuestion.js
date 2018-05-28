@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -68,6 +68,7 @@ class CheckGroup extends Component<Props> {
     );
   }
 
+
   render() {
     var checkboxes = this.genCheckboxes();
     return(
@@ -98,7 +99,8 @@ export default class CheckQuestion extends Component<Props> {
   };
 
   updateCheckBoxes(checked) {
-    this.setState({checked: checked})
+    this.updateUserInput(checked);
+    this.setState({checked: checked});
   }
 
   getSelected() {
@@ -109,21 +111,79 @@ export default class CheckQuestion extends Component<Props> {
     return selected;
   }
 
+  componentWillReceiveProps(newProps) {
+    if (typeof newProps.checked !== "undefined" && newProps.index != this.props.index) {
+      this.setState({checked: newProps.checked});
+    }
+  }
+
+  componentWillMount() {
+    if (typeof this.props.checked !== "undefined") {
+      this.setState({checked: this.props.checked});
+    }
+  }
+
+
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
+  }
+
+  updateUserInput(checked) {
+    var show = [];
+    var hide = [];
+    for (i=0; i<checked.length; i++) {
+      if (checked[i]) {
+        if (this.props.data.shows_questions !== undefined) {
+          show = show.concat(this.props.data.options[i].shows_questions);
+        }
+        if (this.props.data.hides_questions !== undefined) {
+          hide = hide.concat(this.props.data.options[i].hides_questions);
+        }
+      }
+      if (this.state.checked[i] && !checked[i]) {
+        if (this.props.data.shows_questions !== undefined) {
+          hide = hide.concat(this.props.data.options[i].shows_questions);
+        }
+        if (this.props.data.hides_questions !== undefined) {
+          show = show.concat(this.props.data.options[i].hides_questions);
+        }
+      }
+    }
+    this.props.updateUserInput(checked, this.props.index,
+                               show, hide);
+  }
+
   render() {
     var title = this.props.data.title;
+    var tooltipIcon = this.getTooltipIcon();
     return (
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
+        {tooltipIcon}
         <View style={styles.optionsContainer}>
           <CheckGroup
             options={this.props.data.options}
             updateParent={this.updateCheckBoxes}
             checked={this.state.checked}
           />
-          <Text>{this.getSelected()}</Text>
+          <Text>{"Selected: " + this.getSelected()}</Text>
         </View>
       </View>
     );

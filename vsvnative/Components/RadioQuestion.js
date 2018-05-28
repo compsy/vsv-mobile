@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CheckBox } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
 import HTMLView from 'react-native-htmlview';
 
 
@@ -80,11 +80,8 @@ export default class RadioQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    checked = -1;
-    this.state = {
-                    checked: checked,
-                 };
     this.updateRadios = this.updateRadios.bind(this);
+    this.tooltipOpen = this.tooltipOpen.bind(this);
   }
 
   static navigationOptions = {
@@ -92,26 +89,87 @@ export default class RadioQuestion extends Component<Props> {
   };
 
   updateRadios(checked) {
-    this.setState({checked: checked})
+    this.updateUserInput(checked);
+    this.setState({checked: checked});
+  }
+
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (typeof newProps.checked !== "undefined"  && newProps.index != this.props.index) {
+      this.setState({checked: newProps.checked});
+    }
+  }
+
+  componentWillMount() {
+    if (typeof this.props.checked !== "undefined") {
+      this.setState({checked: this.props.checked});
+    } else {
+      this.setState({checked: -1});
+    }
+  }
+
+  updateUserInput(checked) {
+    var show = new Array();
+    var hide = new Array();
+    if (checked != -1) {
+      if (this.props.data.options[checked].shows_questions !== undefined) {
+        show = this.props.data.options[checked].shows_questions;
+      }
+      if (this.props.data.options[checked].hides_questions !== undefined) {
+        hide = this.props.data.options[checked].hides_questions;
+      }
+    }
+    if (this.state.checked != -1) {
+      if (this.props.data.options[this.state.checked].shows_questions !== undefined) {
+        hide = hide.concat(this.props.data.options[this.state.checked].shows_questions);
+      }
+      if (this.props.data.options[this.state.checked].hides_questions !== undefined) {
+        show = show.concat(this.props.data.options[this.state.checked].hides_questions);
+      }
+    }
+    this.props.updateUserInput( checked, this.props.index,
+                                show, hide );
   }
 
   render() {
     var title = this.props.data.title;
+    var tooltipIcon = this.getTooltipIcon();
+    var shows = (this.state.checked == -1 || this.props.data.options[this.state.checked].shows_questions === undefined) ? "none" : this.props.data.options[this.state.checked].shows_questions;
     return (
+      <View>
       <View style={styles.mainContainer}>
         <HTMLView
           stylesheet={titleStyles}
           value={"<body>" + title + "</body>"}
         />
+        {tooltipIcon}
         <View style={styles.optionsContainer}>
           <RadioGroup
             options={this.props.data.options}
             updateParent={this.updateRadios}
             checked={this.state.checked}
           />
-          <Text>{this.state.checked}</Text>
+          <Text>{"Selected: " + this.state.checked + "   Shows: " + shows}</Text>
         </View>
       </View>
+    </View>
     );
   }
 }
@@ -123,7 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly'
   },
   optionsContainer: {
-    flex: 1,
+    flex: 2.5,
     flexDirection: 'column',
     justifyContent: 'center',
   },
