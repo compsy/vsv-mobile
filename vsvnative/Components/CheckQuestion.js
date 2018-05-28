@@ -99,6 +99,7 @@ export default class CheckQuestion extends Component<Props> {
   };
 
   updateCheckBoxes(checked) {
+    this.updateUserInput(checked);
     this.setState({checked: checked});
   }
 
@@ -111,9 +112,6 @@ export default class CheckQuestion extends Component<Props> {
   }
 
   componentWillReceiveProps(newProps) {
-    if(newProps.index != this.props.index) {
-      this.props.updateUserInput();
-    }
     if (typeof newProps.checked !== "undefined" && newProps.index != this.props.index) {
       this.setState({checked: newProps.checked});
     }
@@ -125,9 +123,6 @@ export default class CheckQuestion extends Component<Props> {
     }
   }
 
-  componentWillUnmount() {
-    this.updateUserInput();
-  }
 
   getTooltipIcon() {
     if (typeof this.props.data.tooltip === "string") {
@@ -147,20 +142,28 @@ export default class CheckQuestion extends Component<Props> {
     this.props.openPopup(text);
   }
 
-  updateUserInput() {
+  updateUserInput(checked) {
     var show = [];
     var hide = [];
-    for (i=0; i<this.state.checked.length; i++) {
-      if (this.state.checked[i]) {
+    for (i=0; i<checked.length; i++) {
+      if (checked[i]) {
         if (this.props.data.shows_questions !== undefined) {
-          show.concat(this.props.data.options[i].shows_questions);
+          show = show.concat(this.props.data.options[i].shows_questions);
         }
         if (this.props.data.hides_questions !== undefined) {
-          hide.concat(this.props.data.options[i].hides_questions);
+          hide = hide.concat(this.props.data.options[i].hides_questions);
+        }
+      }
+      if (this.state.checked[i] && !checked[i]) {
+        if (this.props.data.shows_questions !== undefined) {
+          hide = hide.concat(this.props.data.options[i].shows_questions);
+        }
+        if (this.props.data.hides_questions !== undefined) {
+          show = show.concat(this.props.data.options[i].hides_questions);
         }
       }
     }
-    this.props.updateUserInput(this.state.checked, this.props.index,
+    this.props.updateUserInput(checked, this.props.index,
                                show, hide);
   }
 
@@ -180,7 +183,7 @@ export default class CheckQuestion extends Component<Props> {
             updateParent={this.updateCheckBoxes}
             checked={this.state.checked}
           />
-          <Text>{this.getSelected()}</Text>
+          <Text>{"Selected: " + this.getSelected()}</Text>
         </View>
       </View>
     );
