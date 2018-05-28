@@ -34,15 +34,15 @@ export default class SliderQuestion extends Component<Props> {
   componentWillReceiveProps(newProps) {
     var max = (typeof newProps.data.max === "number") ? newProps.data.max : 100;
     var min = (typeof newProps.data.min === "number") ? newProps.data.min : 0;
-    if(newProps.index != this.props.index) {
-      this.props.updateUserInput(this.state.value, this.props.index);
+    if (newProps.index != this.props.index) {
+      this.updateUserInput();
     }
     this.setState({
                     value: max/2,
                     sliderMin: min,
                     sliderMax: max
                   });
-    if (typeof newProps.value !== "undefined") {
+    if (typeof newProps.value !== "undefined" && newProps.index != this.props.index) {
       this.setState({value: newProps.value});
     }
   }
@@ -54,7 +54,11 @@ export default class SliderQuestion extends Component<Props> {
   }
 
   componentWillUnmount() {
-    this.props.updateUserInput(this.state.value, this.props.index);
+    this.updateUserInput();
+  }
+
+  updateUserInput() {
+    this.props.updateUserInput(this.state.value, this.props.index, [], []);
   }
 
   updateSliderValue(val) {

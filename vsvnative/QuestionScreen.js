@@ -21,12 +21,13 @@ export default class QuestionScreen extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state ={ fetched: "false", progress: 0}
+    this.state ={ fetched: "false", progress: 0 }
     this.onPressBack = this.onPressBack.bind(this);
     this.onPressNext = this.onPressNext.bind(this);
     this.quitScreen = this.quitScreen.bind(this);
     this.openPopup = this.openPopup.bind(this);
     this.keepUserInput = this.keepUserInput.bind(this);
+    this.showAndHideQuestions = this.showAndHideQuestions.bind(this);
   }
 
   static navigationOptions = {
@@ -49,17 +50,28 @@ export default class QuestionScreen extends Component<Props> {
     })
     .then((responseJson) => {
       if (!(this.state.fetched === "failed")) {
-        this.setState({
-          fetched: "true",
-          qContent: responseJson.content,
-          qLength: responseJson.content.length,
-          userInput: []
-        })
+        this.populateQuestionArrays(responseJson.content);
       }
     })
     .catch((error) => {
       console.error(error);
     });
+  }
+
+  populateQuestionArrays(questions) {
+    var hide = new Array();
+    for (i=0; i<questions.length; i++) {
+      if (questions[i].hidden !== undefined && questions[i].hidden == true) {
+        hide.push(questions[i].id);
+      }
+    }
+    this.setState({
+                    qContent: questions,
+                    hidden: hide,
+                    fetched: "true",
+                    userInput: [],
+                    numSkipped: 0
+                  });
   }
 
   getQuestionComponent() {
@@ -155,18 +167,41 @@ export default class QuestionScreen extends Component<Props> {
     }
   }
 
+  isHidden(question) {
+    for (i=0; i<this.state.hidden.length; i++) {
+      if (this.state.hidden[i] === question.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
   * On Press Handlers
   */
   onPressNext() {
-    if(this.state.progress + 1 < this.state.qLength) {
-      this.setState({ progress: this.state.progress + 1 });
+    this.showAndHideQuestions();
+    if(this.state.progress + 1 < this.state.qContent.length) {
+      var newProgress = this.state.progress + 1;
+      var numSkipped = this.state.numSkipped;
+      while (this.isHidden(this.state.qContent[newProgress])) {
+        newProgress++;
+        numSkipped++;
+      }
+      this.setState({ progress: newProgress, numSkipped: numSkipped });
     }
   }
 
   onPressBack() {
+    this.showAndHideQuestions();
     if(this.state.progress > 0) {
-      this.setState({ progress: this.state.progress - 1 });
+      var newProgress = this.state.progress - 1;
+      var numSkipped = this.state.numSkipped;
+      while (this.isHidden(this.state.qContent[newProgress])) {
+        newProgress--;
+        numSkipped--;
+      }
+      this.setState({ progress: newProgress, numSkipped: numSkipped });
     }
   }
 
@@ -182,10 +217,36 @@ export default class QuestionScreen extends Component<Props> {
     this.props.navigation.goBack();
   }
 
-  keepUserInput(input, index) {
+  keepUserInput(input, index, show, hide) {
     var userInput = this.state.userInput;
     userInput[index] = input;
-    this.setState({ userInput: userInput });
+    this.setState({ userInput: userInput, toHide: hide, toShow: show });
+  }
+
+  showAndHideQuestions() {
+    var hidden = this.state.hidden;
+    if (this.state.toHide != undefined) {
+      for (i=0; i<this.state.toHide.length; i++) {
+        var duplicate = false;
+        for (j=0; j<hidden.length; j++) {
+          if (hidden[j] == this.state.toHide[i]) {
+            duplicate = true;
+            break;
+          }
+        }
+        if (!duplicate) {  hidden.push(this.state.toHide[i]); }
+      }
+    }
+    if (this.state.toShow != undefined) {
+      for (i=0; i<hidden.length; i++) {
+        for (j=0; j<this.state.toShow.length; j++) {
+          if (hidden[i] == this.state.toShow[j]) {
+            hidden.splice(i, 1);
+          }
+        }
+      }
+    }
+    this.setState({ hidden: hidden, toHide: undefined, toShow: undefined });
   }
 
 
@@ -195,10 +256,11 @@ export default class QuestionScreen extends Component<Props> {
   render() {
 
     if (this.state.fetched === "true") {
-      progressText = (this.state.progress + 1) +  " of " + this.state.qLength;
+      progressText = (this.state.progress + 1 - this.state.numSkipped) +  " of " + (this.state.qContent.length - this.state.hidden.length);
     } else {
       progressText = "";
     }
+    if (this.state.qContent != undefined) { debug = this.state.qContent[this.state.progress].id } else { debug = "" }
     var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>
@@ -221,6 +283,7 @@ export default class QuestionScreen extends Component<Props> {
             color="#606060"
           />
         </View>
+        <Text>{"Hidden: " + this.state.hidden + "   This: " + debug}</Text>
         <PopupDialog
           ref={(popup) => { this.popup = popup;}}
         >
@@ -232,7 +295,7 @@ export default class QuestionScreen extends Component<Props> {
             </View>
             <Icon
               style={{alignSelf:'flex-end'}}
-              onPress={ () => {this.popup.dismiss();}}
+              onPress={ () => { this.popup.dismiss(); } }
               type='feather'
               name='x'
             />

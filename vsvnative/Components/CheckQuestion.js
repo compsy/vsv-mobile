@@ -68,23 +68,6 @@ class CheckGroup extends Component<Props> {
     );
   }
 
-  getTooltipIcon() {
-    if (typeof this.props.data.tooltip === "string") {
-      return(
-        <Icon
-          style={{flex: 1}}
-          type='ionicon'
-          name='md-information-circle'
-          color='#009A74'
-          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
-        />
-      );
-    }
-  }
-
-  tooltipOpen(text) {
-    this.props.openPopup(text);
-  }
 
   render() {
     var checkboxes = this.genCheckboxes();
@@ -116,7 +99,7 @@ export default class CheckQuestion extends Component<Props> {
   };
 
   updateCheckBoxes(checked) {
-    this.setState({checked: checked})
+    this.setState({checked: checked});
   }
 
   getSelected() {
@@ -129,9 +112,9 @@ export default class CheckQuestion extends Component<Props> {
 
   componentWillReceiveProps(newProps) {
     if(newProps.index != this.props.index) {
-      this.props.updateUserInput(this.state.checked, this.props.index);
+      this.props.updateUserInput();
     }
-    if (typeof newProps.checked !== "undefined") {
+    if (typeof newProps.checked !== "undefined" && newProps.index != this.props.index) {
       this.setState({checked: newProps.checked});
     }
   }
@@ -143,7 +126,42 @@ export default class CheckQuestion extends Component<Props> {
   }
 
   componentWillUnmount() {
-    this.props.updateUserInput(this.state.checked, this.props.index);
+    this.updateUserInput();
+  }
+
+  getTooltipIcon() {
+    if (typeof this.props.data.tooltip === "string") {
+      return(
+        <Icon
+          style={{flex: 1}}
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.data.tooltip);}}
+        />
+      );
+    }
+  }
+
+  tooltipOpen(text) {
+    this.props.openPopup(text);
+  }
+
+  updateUserInput() {
+    var show = [];
+    var hide = [];
+    for (i=0; i<this.state.checked.length; i++) {
+      if (this.state.checked[i]) {
+        if (this.props.data.shows_questions !== undefined) {
+          show.concat(this.props.data.options[i].shows_questions);
+        }
+        if (this.props.data.hides_questions !== undefined) {
+          hide.concat(this.props.data.options[i].hides_questions);
+        }
+      }
+    }
+    this.props.updateUserInput(this.state.checked, this.props.index,
+                               show, hide);
   }
 
   render() {

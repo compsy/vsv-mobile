@@ -80,10 +80,6 @@ export default class RadioQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    checked = -1;
-    this.state = {
-                    checked: checked,
-                 };
     this.updateRadios = this.updateRadios.bind(this);
     this.tooltipOpen = this.tooltipOpen.bind(this);
   }
@@ -93,7 +89,8 @@ export default class RadioQuestion extends Component<Props> {
   };
 
   updateRadios(checked) {
-    this.setState({checked: checked})
+    this.updateUserInput(checked);
+    this.setState({checked: checked});
   }
 
   getTooltipIcon() {
@@ -115,10 +112,7 @@ export default class RadioQuestion extends Component<Props> {
   }
 
   componentWillReceiveProps(newProps) {
-    if(newProps.index != this.props.index) {
-      this.props.updateUserInput(this.state.checked, this.props.index);
-    }
-    if (typeof newProps.checked !== "undefined") {
+    if (typeof newProps.checked !== "undefined"  && newProps.index != this.props.index) {
       this.setState({checked: newProps.checked});
     }
   }
@@ -126,16 +120,38 @@ export default class RadioQuestion extends Component<Props> {
   componentWillMount() {
     if (typeof this.props.checked !== "undefined") {
       this.setState({checked: this.props.checked});
+    } else {
+      this.setState({checked: -1});
     }
   }
 
-  componentWillUnmount() {
-    this.props.updateUserInput(this.state.checked, this.props.index);
+  updateUserInput(checked) {
+    var show = new Array();
+    var hide = new Array();
+    if (checked != -1) {
+      if (this.props.data.options[checked].shows_questions !== undefined) {
+        show = this.props.data.options[checked].shows_questions;
+      }
+      if (this.props.data.options[checked].hides_questions !== undefined) {
+        hide = this.props.data.options[checked].hides_questions;
+      }
+    }
+    if (this.state.checked != -1) {
+      if (this.props.data.options[this.state.checked].shows_questions !== undefined) {
+        hide = hide.concat(this.props.data.options[this.state.checked].shows_questions);
+      }
+      if (this.props.data.options[this.state.checked].hides_questions !== undefined) {
+        show = show.concat(this.props.data.options[this.state.checked].hides_questions);
+      }
+    }
+    this.props.updateUserInput( checked, this.props.index,
+                                show, hide );
   }
 
   render() {
     var title = this.props.data.title;
     var tooltipIcon = this.getTooltipIcon();
+    var shows = (this.state.checked == -1 || this.props.data.options[this.state.checked].shows_questions === undefined) ? "none" : this.props.data.options[this.state.checked].shows_questions;
     return (
       <View>
       <View style={styles.mainContainer}>
@@ -150,7 +166,7 @@ export default class RadioQuestion extends Component<Props> {
             updateParent={this.updateRadios}
             checked={this.state.checked}
           />
-          <Text>{this.state.checked}</Text>
+          <Text>{"Selected: " + this.state.checked + "   Shows: " + shows}</Text>
         </View>
       </View>
     </View>
