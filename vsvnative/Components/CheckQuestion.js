@@ -112,8 +112,17 @@ export default class CheckQuestion extends Component<Props> {
   }
 
   componentWillReceiveProps(newProps) {
-    if (typeof newProps.checked !== "undefined" && newProps.index != this.props.index) {
-      this.setState({checked: newProps.checked});
+    if (newProps.index != this.props.index) {
+      if (newProps.checked === undefined) {
+        var checked = [];
+        this.length = this.props.data.options.length;
+        for (i=0; i<this.length; i++) {
+          checked[i] = false;
+        }
+        this.setState({checked: checked});
+      } else {
+        this.setState({checked: newProps.checked});
+      }
     }
   }
 

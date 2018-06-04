@@ -112,8 +112,12 @@ export default class RadioQuestion extends Component<Props> {
   }
 
   componentWillReceiveProps(newProps) {
-    if (typeof newProps.checked !== "undefined"  && newProps.index != this.props.index) {
-      this.setState({checked: newProps.checked});
+    if (newProps.index != this.props.index) {
+      if (newProps.checked === undefined) {
+        this.setState({checked: -1});
+      } else {
+        this.setState({checked: newProps.checked});
+      }
     }
   }
 

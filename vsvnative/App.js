@@ -10,16 +10,43 @@ import {
   Text,
   View,
   Button,
-  Alert
+  Alert,
+  StatusBar
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import QuestionScreen from './QuestionScreen';
+import AuthenticateUser from './Components/AuthenticateUser';
 
 
 class HomeScreen extends React.Component<Props> {
 
+  constructor(props) {
+    super(props);
+    this.submitLoginInfo = this.submitLoginInfo.bind(this);
+  }
+
   _onPressNothing() {
     Alert.alert('I told you this does nothing.')
+  }
+
+  componentWillMount() {
+    this.setState({ loggedIn: false });
+  }
+
+  getHomeScreenComponent() {
+    if (this.state.loggedIn) {
+      //list
+    } else {
+      return(
+        <AuthenticateUser
+          submitLoginInfo={this.submitLoginInfo}
+        />
+      );
+    }
+  }
+
+  submitLoginInfo(username, password) {
+
   }
 
   static navigationOptions = {
@@ -28,35 +55,32 @@ class HomeScreen extends React.Component<Props> {
 
   render() {
     return (
+      <View style={{flex: 1, flexDirection: 'column'}}>
+        <StatusBar
+          barStyle={"dark-content"}
+        />
       <View style={styles.background}>
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
-            <Text style={styles.welcome}>
-              Main Menu:
+            <Text style={styles.titleText}>
+              {this.state.loggedIn ?
+                "Select a questionnaire" : "Log in to access your\nquestionnaires"}
             </Text>
           </View>
-          <View style={styles.itemContainer}>
-            <Button
-              onPress={() => this.props.navigation.navigate('Question')}
-              title="Test question screen."
-              color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button does nothing."
-              color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button also does nothing."
-              color="#606060"
-              fontSize="30"
-            />
+          <View style={styles.componentContainer}>
+            {this.getHomeScreenComponent()}
           </View>
         </View>
       </View>
+      <View style={{flex: 0, justifyContent: 'center'}}>
+        <Button
+          onPress={() => this.props.navigation.navigate('Question')}
+          title="Test question screen."
+          color="#606060"
+          fontSize="30"
+        />
+      </View>
+    </View>
     );
   }
 }
@@ -78,7 +102,7 @@ const NavStack = StackNavigator(
 
 export default class App extends React.Component<Props> {
   render() {
-    return <NavStack />
+    return <NavStack/>
   }
 }
 
@@ -87,25 +111,27 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   menuContainer: {
     width: '90%',
-    height: '80%',
+    height: '55%',
+    alignSelf: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   titleContainer: {
     flex: 1,
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  itemContainer: {
-    width: '100%',
-    flex: 3,
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  componentContainer: {
+    flex: 2,
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   navContainer: {
@@ -114,26 +140,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  backButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  nextButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  welcome: {
+  titleText: {
     fontSize: 26,
-    fontWeight: 'bold',
     textAlign: 'center',
-    margin: 10,
-    color: '#000000'
-  },
-  menuItem: {
-    width: '90%',
-    fontSize: 18,
-    color: '#606060',
-    textAlign: 'center',
-    marginBottom: 5,
+    margin: 10
   },
 });

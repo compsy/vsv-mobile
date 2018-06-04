@@ -35,15 +35,16 @@ export default class SliderQuestion extends Component<Props> {
     var max = (typeof newProps.data.max === "number") ? newProps.data.max : 100;
     var min = (typeof newProps.data.min === "number") ? newProps.data.min : 0;
     if (newProps.index != this.props.index) {
-      this.updateUserInput();
-    }
-    this.setState({
-                    value: max/2,
-                    sliderMin: min,
-                    sliderMax: max
-                  });
-    if (typeof newProps.value !== "undefined" && newProps.index != this.props.index) {
-      this.setState({value: newProps.value});
+      if (newProps.value === undefined) {
+        var val = max/2;
+      } else {
+        var val = newProps.value;
+      }
+      this.setState({
+                      value: val,
+                      sliderMin: min,
+                      sliderMax: max
+                    });
     }
   }
 
@@ -53,16 +54,13 @@ export default class SliderQuestion extends Component<Props> {
     }
   }
 
-  componentWillUnmount() {
-    this.updateUserInput();
-  }
-
-  updateUserInput() {
-    this.props.updateUserInput(this.state.value, this.props.index, [], []);
+  updateUserInput(val) {
+    this.props.updateUserInput(val, this.props.index, [], []);
   }
 
   updateSliderValue(val) {
-    this.setState({value: val})
+    //this.updateUserInput(val);
+    this.setState({value: val});
   }
 
   getTooltipIcon() {
@@ -102,7 +100,7 @@ export default class SliderQuestion extends Component<Props> {
             value={this.state.value}
             minimumValue={this.state.sliderMin}
             maximumValue={this.state.sliderMax}
-            onValueChange={this.updateSliderValue}
+            onSlidingComplete={this.updateSliderValue}
           />
         </View>
         <View style={styles.labelContainer}>
