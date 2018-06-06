@@ -36,7 +36,7 @@ export default class QuestionScreen extends Component<Props> {
 
   componentDidMount() {
     return fetch(
-      'https://app.u-can-act.nl/api/v1/questionnaire/student_diary'
+      this.props.navigation.state.params.responseURL
     )
     .then((response) => {
       if(response.status == 200) {

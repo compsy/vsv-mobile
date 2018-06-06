@@ -30,7 +30,10 @@ class HomeScreen extends React.Component<Props> {
   }
 
   componentWillMount() {
-    this.setState({ loggedIn: false });
+    this.setState({
+                    loggedIn: false,
+                    selectedURL: 'https://app.u-can-act.nl/api/v1/questionnaire/student_diary'
+                  });
   }
 
   getHomeScreenComponent() {
@@ -72,9 +75,9 @@ class HomeScreen extends React.Component<Props> {
           </View>
         </View>
       </View>
-      <View style={{flex: 0, justifyContent: 'center'}}>
+      <View style={{flex: 0, justifyContent: 'center', backgroundColor: '#fff'}}>
         <Button
-          onPress={() => this.props.navigation.navigate('Question')}
+          onPress={() => this.props.navigation.navigate('Question', {responseURL: this.state.selectedURL})}
           title="Test question screen."
           color="#606060"
           fontSize="30"
@@ -112,6 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#ffffff'
   },
   menuContainer: {
     width: '90%',
