@@ -36,7 +36,7 @@ export default class QuestionScreen extends Component<Props> {
 
   componentDidMount() {
     return fetch(
-      this.props.navigation.state.params.responseURL
+      this.props.navigation.state.params.selectedURL
     )
     .then((response) => {
       if(response.status == 200) {
@@ -50,7 +50,7 @@ export default class QuestionScreen extends Component<Props> {
     })
     .then((responseJson) => {
       if (!(this.state.fetched === "failed")) {
-        this.populateQuestionArrays(responseJson.content);
+        this.populateQuestionArrays(responseJson.questionnaire_content);
       }
     })
     .catch((error) => {

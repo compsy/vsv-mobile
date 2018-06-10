@@ -11,18 +11,46 @@ import {
   View,
   Button,
   Alert,
-  StatusBar
+  StatusBar,
+  ScrollView
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { CheckBox, Icon } from 'react-native-elements';
 import QuestionScreen from './QuestionScreen';
 import AuthenticateUser from './Components/AuthenticateUser';
 
+
+class RadioMulti extends Component<Props> {
+
+  constructor(props) {
+      super(props);
+      this.updateChecked = this.updateChecked.bind(this);
+  }
+
+  updateChecked() {
+    this.props.onPress(this.props.index)
+  }
+
+  render() {
+    return(
+      <CheckBox
+        checked={this.props.checked==this.props.index}
+        onPress={this.updateChecked}
+        title = {this.props.title}
+        checkedIcon='dot-circle-o'
+        uncheckedIcon='circle-o'
+      />
+    );
+  }
+
+}
 
 class HomeScreen extends React.Component<Props> {
 
   constructor(props) {
     super(props);
     this.submitLoginInfo = this.submitLoginInfo.bind(this);
+    this.updateCheckedResponse = this.updateCheckedResponse.bind(this);
   }
 
   _onPressNothing() {
@@ -30,15 +58,26 @@ class HomeScreen extends React.Component<Props> {
   }
 
   componentWillMount() {
-    this.setState({
-                    loggedIn: false,
-                    selectedURL: 'https://app.u-can-act.nl/api/v1/questionnaire/student_diary'
-                  });
+    this.setState({ loggedIn: false });
   }
 
   getHomeScreenComponent() {
     if (this.state.loggedIn) {
-      //list
+      var responseList = this.populateResponseList();
+      if (responseList.length > 0) {
+        return(
+          <ScrollView>
+            {responseList}
+            <Text>{this.state.checkedResponse}</Text>
+          </ScrollView>
+        );
+      } else {
+        return(
+          <Text style={styles.noQuestionnaires}>
+            No questionnaires available at the moment.
+          </Text>
+        );
+      }
     } else {
       return(
         <AuthenticateUser
@@ -48,8 +87,60 @@ class HomeScreen extends React.Component<Props> {
     }
   }
 
-  submitLoginInfo(username, password) {
+  updateCheckedResponse(index) {
+    this.setState({checkedResponse: index});
+  }
 
+  populateResponseList() {
+    return(
+      this.state.responses.map( (t,i) =>
+                            <RadioMulti
+                              title={t.questionnaire.name}
+                              key={i}
+                              index={i}
+                              checked={this.state.checkedResponse}
+                              onPress={this.updateCheckedResponse}
+                            />
+                  )
+    );
+  }
+
+  navigateQuestionnaire() {
+    if (this.state.checkedResponse != -1) {
+      var responseURL = 'https://vsv-test.herokuapp.com/api/v1/response/'
+        + this.state.responses[this.state.checkedResponse].uuid;
+    }
+    this.props.navigation.navigate('Question', {selectedURL: responseURL});
+  }
+
+  submitLoginInfo(username, password) {
+     var url = 'https://vsv-test.herokuapp.com/api/v1/response?external_identifier=' + username;
+     this.setState({ loginURL: url });
+     return fetch(
+       url
+     )
+     .then((response) => {
+       if(response.status == 200) {
+         return response.json();
+       } else {
+         this.setState({
+           fetched: "failed",
+           error: response.status,
+         })
+       }
+     })
+     .then((responseJson) => {
+       if (!(this.state.fetched === "failed")) {
+         this.setState({
+                        responses: responseJson,
+                        loggedIn: true,
+                        checkedResponse: -1
+                      });
+       }
+     })
+     .catch((error) => {
+       console.error(error);
+     });
   }
 
   static navigationOptions = {
@@ -77,7 +168,7 @@ class HomeScreen extends React.Component<Props> {
       </View>
       <View style={{flex: 0, justifyContent: 'center', backgroundColor: '#fff'}}>
         <Button
-          onPress={() => this.props.navigation.navigate('Question', {responseURL: this.state.selectedURL})}
+          onPress={() => this.navigateQuestionnaire()}
           title="Test question screen."
           color="#606060"
           fontSize="30"
@@ -149,4 +240,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10
   },
+  noQuestionnaires: {
+    fontSize: 20,
+    textAlign: 'center',
+    borderWidth: 60,
+    borderColor: 'transparent',
+    fontWeight: 'bold'
+  }
 });
