@@ -67,16 +67,19 @@ class HomeScreen extends React.Component<Props> {
       if (responseList.length > 0) {
         return(
           <View>
-            <ScrollView>
-              {responseList}
-              <Text>{this.state.checkedResponse}</Text>
-            </ScrollView>
-            <Button
-              onPress={() => this.navigateQuestionnaire()}
-              title="Start Questionnaire"
-              color="#606060"
-              fontSize="30"
-            />
+            <View style={{flex: 1}}>
+              <ScrollView>
+                {responseList}
+              </ScrollView>
+            </View>
+            <View style={{flex: 1}}>
+              <Button
+                onPress={() => this.navigateQuestionnaire()}
+                title="Start Questionnaire"
+                color="#606060"
+                fontSize="30"
+              />
+            </View>
           </View>
         );
       } else {
