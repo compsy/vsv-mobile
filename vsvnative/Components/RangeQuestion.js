@@ -17,13 +17,6 @@ export default class SliderQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    var max = (typeof this.props.data.max === "number") ? this.props.data.max : 100;
-    var min = (typeof this.props.data.min === "number") ? this.props.data.min : 0;
-    this.state = {
-                    value: max/2,
-                    sliderMin: min,
-                    sliderMax: max
-                 };
     this.updateSliderValue = this.updateSliderValue.bind(this);
   }
 
@@ -35,7 +28,7 @@ export default class SliderQuestion extends Component<Props> {
     var max = (typeof newProps.data.max === "number") ? newProps.data.max : 100;
     var min = (typeof newProps.data.min === "number") ? newProps.data.min : 0;
     if (newProps.index != this.props.index) {
-      if (newProps.value === undefined) {
+      if (newProps.value == undefined) {
         var val = max/2;
       } else {
         var val = newProps.value;
@@ -49,18 +42,36 @@ export default class SliderQuestion extends Component<Props> {
   }
 
   componentWillMount() {
-    if (typeof this.props.value !== "undefined") {
+    if (this.props.value != undefined) {
       this.setState({value: this.props.value});
+    } else {
+      var max = (typeof this.props.data.max === "number") ? this.props.data.max : 100;
+      var min = (typeof this.props.data.min === "number") ? this.props.data.min : 0;
+      this.updateUserInput(max/2)
+      this.setState({
+                      value: max/2,
+                      sliderMin: min,
+                      sliderMax: max
+                   });
     }
   }
 
+  componentWillUnmount(){
+      this.updateUserInput(this.state.value);
+  }
+
   updateUserInput(val) {
-    this.props.updateUserInput(val, this.props.index, [], []);
+    if (val !== undefined) {
+      var jsonString = "\"" + this.props.data.id + "\":\"" + val + "\"";
+    } else {
+      var jsonString = "\"" + this.props.data.id + "\":\"" +  + "\"";
+    }
+    this.props.updateUserInput(val, this.props.index, [], [], jsonString);
   }
 
   updateSliderValue(val) {
-    //this.updateUserInput(val);
     this.setState({value: val});
+    this.updateUserInput(val);
   }
 
   getTooltipIcon() {

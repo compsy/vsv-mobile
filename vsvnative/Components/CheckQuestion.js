@@ -123,6 +123,7 @@ export default class CheckQuestion extends Component<Props> {
           this.props.requiresInput();
         }
         this.setState({checked: checked});
+        this.updateUserInput(this.getSelected(checked));
       } else {
         this.setState({checked: newProps.checked});
       }
@@ -133,6 +134,7 @@ export default class CheckQuestion extends Component<Props> {
     if (typeof this.props.checked !== "undefined") {
       this.setState({checked: this.props.checked});
     } else {
+      this.updateUserInput(this.state.checked);
       if (this.props.data.required !== undefined && this.props.data.required == true){
         this.props.requiresInput();
       }
@@ -158,11 +160,22 @@ export default class CheckQuestion extends Component<Props> {
     this.props.openPopup(text);
   }
 
+  generateJson(i) {
+
+    return(
+      "\"" + this.props.data.id + "_"
+      + (typeof this.props.data.options[i] === "string" ? this.props.data.options[i] : this.props.data.options[i].title)
+      + "\":\"true\","
+    )
+  }
+
   updateUserInput(checked) {
     var show = [];
     var hide = [];
+    var jsonString = "";
     for (i=0; i<checked.length; i++) {
       if (checked[i]) {
+        jsonString = jsonString + this.generateJson(i);
         if (this.props.data.shows_questions !== undefined) {
           show = show.concat(this.props.data.options[i].shows_questions);
         }
@@ -179,8 +192,9 @@ export default class CheckQuestion extends Component<Props> {
         }
       }
     }
+    jsonString = jsonString.slice(0, -1);
     this.props.updateUserInput(checked, this.props.index,
-                               show, hide);
+                               show, hide, jsonString);
   }
 
   render() {

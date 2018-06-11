@@ -118,10 +118,11 @@ class HomeScreen extends React.Component<Props> {
 
   navigateQuestionnaire() {
     if (this.state.checkedResponse != -1) {
+      var responseID = this.state.responses[this.state.checkedResponse].uuid;
       var responseURL = 'https://vsv-test.herokuapp.com/api/v1/response/'
-        + this.state.responses[this.state.checkedResponse].uuid;
+        + responseID;
     }
-    this.props.navigation.navigate('Question', {selectedURL: responseURL});
+    this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
   }
 
   submitLoginInfo(responses) {

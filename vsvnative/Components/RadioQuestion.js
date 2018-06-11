@@ -135,6 +135,9 @@ export default class RadioQuestion extends Component<Props> {
     var show = new Array();
     var hide = new Array();
     if (checked != -1) {
+      var jsonString = "\"" + this.props.data.id + "\":\""
+        + (typeof this.props.data.options[checked] === "string" ? this.props.data.options[checked] : this.props.data.options[checked].title)
+        + "\"";
       if (this.props.data.options[checked].shows_questions !== undefined) {
         show = this.props.data.options[checked].shows_questions;
       }
@@ -150,8 +153,7 @@ export default class RadioQuestion extends Component<Props> {
         show = show.concat(this.props.data.options[this.state.checked].hides_questions);
       }
     }
-    this.props.updateUserInput( checked, this.props.index,
-                                show, hide );
+    this.props.updateUserInput( checked, this.props.index, show, hide, jsonString);
   }
 
   render() {
