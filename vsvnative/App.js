@@ -66,10 +66,18 @@ class HomeScreen extends React.Component<Props> {
       var responseList = this.populateResponseList();
       if (responseList.length > 0) {
         return(
-          <ScrollView>
-            {responseList}
-            <Text>{this.state.checkedResponse}</Text>
-          </ScrollView>
+          <View>
+            <ScrollView>
+              {responseList}
+              <Text>{this.state.checkedResponse}</Text>
+            </ScrollView>
+            <Button
+              onPress={() => this.navigateQuestionnaire()}
+              title="Start Questionnaire"
+              color="#606060"
+              fontSize="30"
+            />
+          </View>
         );
       } else {
         return(
@@ -81,7 +89,7 @@ class HomeScreen extends React.Component<Props> {
     } else {
       return(
         <AuthenticateUser
-          submitLoginInfo={this.submitLoginInfo}
+          updateParentResponses={this.submitLoginInfo}
         />
       );
     }
@@ -113,34 +121,13 @@ class HomeScreen extends React.Component<Props> {
     this.props.navigation.navigate('Question', {selectedURL: responseURL});
   }
 
-  submitLoginInfo(username, password) {
-     var url = 'https://vsv-test.herokuapp.com/api/v1/response?external_identifier=' + username;
-     this.setState({ loginURL: url });
-     return fetch(
-       url
-     )
-     .then((response) => {
-       if(response.status == 200) {
-         return response.json();
-       } else {
-         this.setState({
-           fetched: "failed",
-           error: response.status,
-         })
-       }
-     })
-     .then((responseJson) => {
-       if (!(this.state.fetched === "failed")) {
-         this.setState({
-                        responses: responseJson,
-                        loggedIn: true,
-                        checkedResponse: -1
-                      });
-       }
-     })
-     .catch((error) => {
-       console.error(error);
-     });
+  submitLoginInfo(responses) {
+    this.setState({
+                    responses: responses,
+                    loggedIn: true,
+                    checkedResponse: -1
+                  });
+
   }
 
   static navigationOptions = {
@@ -165,14 +152,6 @@ class HomeScreen extends React.Component<Props> {
             {this.getHomeScreenComponent()}
           </View>
         </View>
-      </View>
-      <View style={{flex: 0, justifyContent: 'center', backgroundColor: '#fff'}}>
-        <Button
-          onPress={() => this.navigateQuestionnaire()}
-          title="Test question screen."
-          color="#606060"
-          fontSize="30"
-        />
       </View>
     </View>
     );

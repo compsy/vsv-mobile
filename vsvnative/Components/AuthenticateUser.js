@@ -32,12 +32,39 @@ export default class AuthenticateUser extends Component<Props> {
 
   submitLoginInfo() {
     if (this.state.username != undefined && this.state.password != undefined
-       && this.state.username.length > 0 && this.state.password.length > 0) {
-      this.props.submitLoginInfo(this.state.username, this.state.password);
-      this.setState({invalid: false});
+       && this.state.username.length == 4 && this.state.password.length == 4) {
+      this.attemptLogin(this.state.username, this.state.password);
     } else {
       this.setState({invalid: true});
     }
+  }
+
+  attemptLogin(username, password) {
+     var url = 'https://vsv-test.herokuapp.com/api/v1/response?external_identifier=' + username;
+     this.setState({ loginURL: url });
+     return fetch(
+       url
+     )
+     .then((response) => {
+       if(response.status == 200) {
+         this.setState({fetched: "true"})
+         return response.json();
+       } else {
+         this.setState({
+           fetched: "failed",
+           invalid: true,
+           error: response.status,
+         })
+       }
+     })
+     .then((responseJson) => {
+       if (!(this.state.fetched === "failed")) {
+         this.props.updateParentResponses(responseJson);
+       }
+     })
+     .catch((error) => {
+       console.error(error);
+     });
   }
 
   render() {
