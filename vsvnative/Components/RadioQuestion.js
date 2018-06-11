@@ -114,6 +114,7 @@ export default class RadioQuestion extends Component<Props> {
   componentWillReceiveProps(newProps) {
     if (newProps.index != this.props.index) {
       if (newProps.checked === undefined) {
+        this.props.requiresInput();
         this.setState({checked: -1});
       } else {
         this.setState({checked: newProps.checked});
@@ -122,9 +123,10 @@ export default class RadioQuestion extends Component<Props> {
   }
 
   componentWillMount() {
-    if (typeof this.props.checked !== "undefined") {
+    if (this.props.checked !== undefined) {
       this.setState({checked: this.props.checked});
     } else {
+      this.props.requiresInput();
       this.setState({checked: -1});
     }
   }

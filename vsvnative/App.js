@@ -95,7 +95,7 @@ class HomeScreen extends React.Component<Props> {
     return(
       this.state.responses.map( (t,i) =>
                             <RadioMulti
-                              title={t.questionnaire.name}
+                              title={t.questionnaire.title}
                               key={i}
                               index={i}
                               checked={this.state.checkedResponse}

@@ -119,6 +119,9 @@ export default class CheckQuestion extends Component<Props> {
         for (i=0; i<this.length; i++) {
           checked[i] = false;
         }
+        if (this.props.data.required !== undefined && this.props.data.required == true){
+          this.props.requiresInput();
+        }
         this.setState({checked: checked});
       } else {
         this.setState({checked: newProps.checked});
@@ -129,6 +132,10 @@ export default class CheckQuestion extends Component<Props> {
   componentWillMount() {
     if (typeof this.props.checked !== "undefined") {
       this.setState({checked: this.props.checked});
+    } else {
+      if (this.props.data.required !== undefined && this.props.data.required == true){
+        this.props.requiresInput();
+      }
     }
   }
 

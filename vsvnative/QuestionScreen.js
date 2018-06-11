@@ -28,6 +28,7 @@ export default class QuestionScreen extends Component<Props> {
     this.openPopup = this.openPopup.bind(this);
     this.keepUserInput = this.keepUserInput.bind(this);
     this.showAndHideQuestions = this.showAndHideQuestions.bind(this);
+    this.hasRequiredInput = this.hasRequiredInput.bind(this);
   }
 
   static navigationOptions = {
@@ -70,7 +71,8 @@ export default class QuestionScreen extends Component<Props> {
                     hidden: hide,
                     fetched: "true",
                     userInput: [],
-                    numSkipped: 0
+                    numSkipped: 0,
+                    requiresInput: false
                   });
   }
 
@@ -86,6 +88,7 @@ export default class QuestionScreen extends Component<Props> {
             index={this.state.progress}
             checked={this.state.userInput[this.state.progress]}
             updateUserInput={this.keepUserInput}
+            requiresInput={this.hasRequiredInput}
           />
         );
         break
@@ -98,6 +101,7 @@ export default class QuestionScreen extends Component<Props> {
             index={this.state.progress}
             checked={this.state.userInput[this.state.progress]}
             updateUserInput={this.keepUserInput}
+            requiresInput={this.hasRequiredInput}
           />
         );
         break
@@ -143,6 +147,10 @@ export default class QuestionScreen extends Component<Props> {
     }
   }
 
+  hasRequiredInput(){
+    this.setState({requiresInput: true})
+  }
+
   getQuestionContent() {
     switch(this.state.fetched) {
       case "true":
@@ -169,7 +177,7 @@ export default class QuestionScreen extends Component<Props> {
 
   isHidden(question) {
     for (i=0; i<this.state.hidden.length; i++) {
-      if (this.state.hidden[i] === question.id) {
+      if (question !== undefined && this.state.hidden[i] === question.id) {
         return true;
       }
     }
@@ -181,10 +189,10 @@ export default class QuestionScreen extends Component<Props> {
   */
   onPressNext() {
     this.showAndHideQuestions();
-    if(this.state.progress + 1 < this.state.qContent.length) {
+    if(!this.state.requiresInput && this.state.progress + 1 < this.state.qContent.length) {
       var newProgress = this.state.progress + 1;
       var numSkipped = this.state.numSkipped;
-      while (this.isHidden(this.state.qContent[newProgress])) {
+      while ((newProgress - numSkipped) < (this.state.qContent.length - this.state.hidden.length) && this.isHidden(this.state.qContent[newProgress])) {
         newProgress++;
         numSkipped++;
       }
@@ -220,7 +228,7 @@ export default class QuestionScreen extends Component<Props> {
   keepUserInput(input, index, show, hide) {
     var userInput = this.state.userInput;
     userInput[index] = input;
-    this.setState({ userInput: userInput, toHide: hide, toShow: show });
+    this.setState({ userInput: userInput, toHide: hide, toShow: show, requiresInput: false });
   }
 
   showAndHideQuestions() {
