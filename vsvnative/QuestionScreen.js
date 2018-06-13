@@ -228,23 +228,24 @@ export default class QuestionScreen extends Component<Props> {
 
   onPressBack() {
     this.showAndHideQuestions();
-    if(this.state.submitReady) {
-      this.setState({ submitReady: false })
-    }
-    if(!this.state.inSubmitScreen && this.state.progress > 0) {
-      var newProgress = this.state.progress - 1;
-      var numSkipped = this.state.numSkipped;
-      while (this.isHidden(this.state.qContent[newProgress])) {
-        newProgress--;
-        numSkipped--;
+    if(this.state.inSubmitScreen) {
+      this.setState({ submitReady: false, inSubmitScreen: false })
+    } else {
+      if(this.state.progress > 0) {
+        var newProgress = this.state.progress - 1;
+        var numSkipped = this.state.numSkipped;
+        while (this.isHidden(this.state.qContent[newProgress])) {
+          newProgress--;
+          numSkipped--;
+        }
+        this.setState({
+                        progress: newProgress,
+                        numSkipped: numSkipped,
+                        requiresInput: false,
+                        inSubmitScreen: false
+                      });
+        }
       }
-      this.setState({
-                      progress: newProgress,
-                      numSkipped: numSkipped,
-                      requiresInput: false,
-                      inSubmitScreen: false
-                    });
-    }
   }
 
   /**
@@ -297,7 +298,7 @@ export default class QuestionScreen extends Component<Props> {
   */
   render() {
 
-    if (this.state.fetched === "true") {
+    if (this.state.fetched === "true" && !this.state.inSubmitScreen) {
       progressText = (this.state.progress + 1 - this.state.numSkipped) +  " of " + (this.state.qContent.length - this.state.hidden.length);
     } else {
       progressText = "";
