@@ -161,7 +161,6 @@ export default class CheckQuestion extends Component<Props> {
   }
 
   generateJson(i) {
-
     return(
       "\"" + this.props.data.id + "_"
       + (typeof this.props.data.options[i] === "string" ? this.props.data.options[i] : this.props.data.options[i].title)

@@ -73,12 +73,19 @@ export default class QuestionScreen extends Component<Props> {
                     fetched: "true",
                     userInput: [],
                     numSkipped: 0,
-                    requiresInput: false
+                    requiresInput: false,
+                    inSubmitScreen: false
                   });
   }
 
+  componentDidUpdate(){
+    if (this.state.submitReady && !this.state.requiresInput && !this.state.inSubmitScreen) {
+      this.setState({inSubmitScreen: true});
+    }
+  }
+
   getQuestionComponent() {
-    if (this.state.submitReady) {
+    if (this.state.submitReady && !this.state.requiresInput) {
       return(
         <SubmitResponse
           userInput={this.state.userInput}
@@ -223,16 +230,20 @@ export default class QuestionScreen extends Component<Props> {
     this.showAndHideQuestions();
     if(this.state.submitReady) {
       this.setState({ submitReady: false })
-    } else {
-      if(this.state.progress > 0) {
-        var newProgress = this.state.progress - 1;
-        var numSkipped = this.state.numSkipped;
-        while (this.isHidden(this.state.qContent[newProgress])) {
-          newProgress--;
-          numSkipped--;
-        }
-        this.setState({ progress: newProgress, numSkipped: numSkipped, requiresInput: false });
+    }
+    if(!this.state.inSubmitScreen && this.state.progress > 0) {
+      var newProgress = this.state.progress - 1;
+      var numSkipped = this.state.numSkipped;
+      while (this.isHidden(this.state.qContent[newProgress])) {
+        newProgress--;
+        numSkipped--;
       }
+      this.setState({
+                      progress: newProgress,
+                      numSkipped: numSkipped,
+                      requiresInput: false,
+                      inSubmitScreen: false
+                    });
     }
   }
 
@@ -292,7 +303,7 @@ export default class QuestionScreen extends Component<Props> {
       progressText = "";
     }
     if (this.state.qContent != undefined) { debug = this.state.qContent[this.state.progress].id } else { debug = "" }
-    debug = this.state.submitReady;
+    //debug = this.state.userInput[this.state.progress].input; //this.state.submitReady + " " + this.state.requiresInput;
     var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>

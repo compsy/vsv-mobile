@@ -17,6 +17,7 @@ export default class SliderQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
+    this.updateUserInput((typeof props.data.max === "number" ? props.data.max/2 : 50), props.index);
     this.updateSliderValue = this.updateSliderValue.bind(this);
   }
 
@@ -24,54 +25,21 @@ export default class SliderQuestion extends Component<Props> {
     header: null
   };
 
-  componentWillReceiveProps(newProps) {
-    var max = (typeof newProps.data.max === "number") ? newProps.data.max : 100;
-    var min = (typeof newProps.data.min === "number") ? newProps.data.min : 0;
-    if (newProps.index != this.props.index) {
-      if (newProps.value == undefined) {
-        var val = max/2;
-      } else {
-        var val = newProps.value;
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data.id != this.props.data.id) {
+      if (typeof nextProps.value !== "number") {
+        this.updateUserInput((typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50), nextProps.index);
       }
-      this.setState({
-                      value: val,
-                      sliderMin: min,
-                      sliderMax: max
-                    });
     }
   }
 
-  componentWillMount() {
-    if (this.props.value != undefined) {
-      this.setState({value: this.props.value});
-    } else {
-      var max = (typeof this.props.data.max === "number") ? this.props.data.max : 100;
-      var min = (typeof this.props.data.min === "number") ? this.props.data.min : 0;
-      this.updateUserInput(max/2)
-      this.setState({
-                      value: max/2,
-                      sliderMin: min,
-                      sliderMax: max
-                   });
-    }
-  }
-
-  componentWillUnmount(){
-      this.updateUserInput(this.state.value);
-  }
-
-  updateUserInput(val) {
-    if (val !== undefined) {
-      var jsonString = "\"" + this.props.data.id + "\":\"" + val + "\"";
-    } else {
-      var jsonString = "\"" + this.props.data.id + "\":\"" +  + "\"";
-    }
-    this.props.updateUserInput(val, this.props.index, [], [], jsonString);
+  updateUserInput(val, index) {
+    var jsonString = "\"" + this.props.data.id + "\":\"" + val + "\"";
+    this.props.updateUserInput(val, index, [], [], jsonString);
   }
 
   updateSliderValue(val) {
-    this.setState({value: val});
-    this.updateUserInput(val);
+    this.updateUserInput(val, this.props.index);
   }
 
   getTooltipIcon() {
@@ -93,10 +61,12 @@ export default class SliderQuestion extends Component<Props> {
   }
 
   render() {
-    var title = this.props.data.title;
-    var label1 = this.props.data.labels[0];
-    var label2 = this.props.data.labels[1];
-    var tooltipIcon = this.getTooltipIcon();
+    let max = (typeof this.props.data.max === "number") ? this.props.data.max : 100;
+    let min = (typeof this.props.data.min === "number") ? this.props.data.min : 0;
+    let title = this.props.data.title;
+    let label1 = this.props.data.labels[0];
+    let label2 = this.props.data.labels[1];
+    let tooltipIcon = this.getTooltipIcon();
     return (
       <View style={styles.mainContainer}>
         <HTMLView
@@ -108,9 +78,9 @@ export default class SliderQuestion extends Component<Props> {
           <Slider
             style={styles.slider}
             step={1}
-            value={this.state.value}
-            minimumValue={this.state.sliderMin}
-            maximumValue={this.state.sliderMax}
+            value={this.props.value}
+            minimumValue={min}
+            maximumValue={max}
             onSlidingComplete={this.updateSliderValue}
           />
         </View>
@@ -122,7 +92,7 @@ export default class SliderQuestion extends Component<Props> {
             {label2}
           </Text>
         </View>
-        <Text style={{alignSelf: 'center'}}>{this.state.value}</Text>
+        <Text style={{alignSelf: 'center'}}>{this.props.value}</Text>
       </View>
     );
   }
