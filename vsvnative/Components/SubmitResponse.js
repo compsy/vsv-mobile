@@ -34,7 +34,7 @@ export default class SubmitResponse extends Component<Props> {
   }
 
   onPressUnsubButton() {
-    fetch('https://2041dbe5397077cfba735a0c:dea44ad2b0bd2fabb5eb749052e85e01@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
+    fetch('https://admin:admin@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -43,9 +43,9 @@ export default class SubmitResponse extends Component<Props> {
       body: this.state.jsonString
     })
       .then(response => {
-        if(response.status == 200) {
+        if(response.status == 201) {
           this.setState({
-            jsonString: "received: " + JSON.stringify(response.json()),
+            //jsonString: "received: " + JSON.stringify(response.json()),
             unsubMessage: unsubComponent
           });
         } else {
@@ -73,7 +73,7 @@ export default class SubmitResponse extends Component<Props> {
     var lastID = ""
     for (i=0; i<this.props.userInput.length; i++) {
       if (this.props.userInput[i] !== undefined && this.props.userInput[i].json != "") {
-        string = string + i + this.props.userInput[i].json + ",";
+        string = string + this.props.userInput[i].json + ",";
       }
     }
     string = string.slice(0, -1);
