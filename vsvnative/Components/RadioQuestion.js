@@ -153,7 +153,7 @@ export default class RadioQuestion extends Component<Props> {
         show = show.concat(this.props.data.options[this.state.checked].hides_questions);
       }
     }
-    this.props.updateUserInput( checked, this.props.index, show, hide, jsonString);
+    this.props.updateUserInput( checked, this.props.data.id, show, hide, jsonString);
   }
 
   render() {

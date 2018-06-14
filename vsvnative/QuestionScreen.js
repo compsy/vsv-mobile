@@ -96,7 +96,13 @@ export default class QuestionScreen extends Component<Props> {
         />
       );
     } else {
-      var userInput = (this.state.userInput[this.state.progress] !== undefined ? this.state.userInput[this.state.progress].input : undefined);
+      var userInput = undefined;
+      for (i=0; i<this.state.userInput.length; i++) {
+        if (this.state.userInput[i] !== undefined && this.state.userInput[i].id == this.state.qContent[this.state.progress].id) {
+           userInput = this.state.userInput[i].input;
+         }
+      }
+      //var userInput = (this.state.userInput[this.state.progress] !== undefined ? this.state.userInput[this.state.progress].input : undefined);
       switch(this.state.qContent[this.state.progress].type) {
 
         case "checkbox":
@@ -260,9 +266,14 @@ export default class QuestionScreen extends Component<Props> {
     this.props.navigation.goBack();
   }
 
-  keepUserInput(input, index, show, hide, jsonString) {
+  keepUserInput(input, id, show, hide, jsonString) {
     var userInput = this.state.userInput;
-    userInput[index] = {input: input, json: jsonString};
+    for (i=0; i<userInput.length; i++) {
+      if (userInput[i] !== undefined && userInput[i].id == id) {
+        break;
+      }
+    }
+    userInput[i] = {input: input, json: jsonString, id: id};
     this.setState({ userInput: userInput, toHide: hide, toShow: show, requiresInput: false });
   }
 
@@ -305,6 +316,9 @@ export default class QuestionScreen extends Component<Props> {
     }
     if (this.state.qContent != undefined) { debug = this.state.qContent[this.state.progress].id } else { debug = "" }
     //debug = this.state.userInput[this.state.progress].input; //this.state.submitReady + " " + this.state.requiresInput;
+    /*for (i=1; i<this.state.userInput.length; i++) {
+      debug = debug + this.state.userInput[i-1].json;
+    }*/
     var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>

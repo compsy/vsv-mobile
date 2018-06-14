@@ -25,15 +25,42 @@ export default class SubmitResponse extends Component<Props> {
     header: null
   };
 
+  componentDidMount(){
+    this.getAnswers();
+  }
+
   quitScreen() {
     this.props.quitScreen();
   }
 
   onPressUnsubButton() {
-    const unsubComponent = <Text>
-                              Successfully Unsubscribed!
-                           </Text>;
-    this.setState({ unsubMessage: unsubComponent });
+    fetch('https://2041dbe5397077cfba735a0c:dea44ad2b0bd2fabb5eb749052e85e01@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: this.state.jsonString
+    })
+      .then(response => {
+        if(response.status == 200) {
+          this.setState({
+            jsonString: "received: " + JSON.stringify(response.json()),
+            unsubMessage: unsubComponent
+          });
+        } else {
+          this.setState({
+            jsonString: response.status,
+          })
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+      const unsubComponent = <Text>
+                                Successfully Submitted!
+                             </Text>;
+
     //setTimeout( this.quitScreen, 1000);
   }
 
@@ -42,15 +69,16 @@ export default class SubmitResponse extends Component<Props> {
   }
 
   getAnswers() {
-    var string = "{\"response_id\":\"" + this.props.responseID + "\",\"content\":{";
+    var string = "{\"uuid\":\"" + 'caf93575-2067-4b5d-a791-85fc9f56788b' + "\",\"content\":{"; //this.props.responseID
+    var lastID = ""
     for (i=0; i<this.props.userInput.length; i++) {
-      if (this.props.userInput[i] !== undefined) {
-        string = string + this.props.userInput[i].json + ",";
+      if (this.props.userInput[i] !== undefined && this.props.userInput[i].json != "") {
+        string = string + i + this.props.userInput[i].json + ",";
       }
     }
     string = string.slice(0, -1);
     string = string + "}}";
-    return string;
+    this.setState({jsonString: string});
   }
 
   render() {
@@ -58,7 +86,7 @@ export default class SubmitResponse extends Component<Props> {
       <View style={styles.mainContainer}>
         <View style={styles.contentContainer}>
           <Text>
-            {this.getAnswers()}
+            {this.state.jsonString}
           </Text>
         </View>
         <View style={styles.buttonContainer}>

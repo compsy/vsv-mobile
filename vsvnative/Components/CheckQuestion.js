@@ -192,7 +192,7 @@ export default class CheckQuestion extends Component<Props> {
       }
     }
     jsonString = jsonString.slice(0, -1);
-    this.props.updateUserInput(checked, this.props.index,
+    this.props.updateUserInput(checked, this.props.data.id,
                                show, hide, jsonString);
   }
 

@@ -17,7 +17,6 @@ export default class SliderQuestion extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.updateUserInput((typeof props.data.max === "number" ? props.data.max/2 : 50), props.index);
     this.updateSliderValue = this.updateSliderValue.bind(this);
   }
 
@@ -25,21 +24,25 @@ export default class SliderQuestion extends Component<Props> {
     header: null
   };
 
+  componentDidMount(){
+    this.updateUserInput((typeof this.props.data.max === "number" ? this.props.data.max/2 : 50), this.props.data.id);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.data.id != this.props.data.id) {
       if (typeof nextProps.value !== "number") {
-        this.updateUserInput((typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50), nextProps.index);
+        this.updateUserInput((typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50), nextProps.data.id);
       }
     }
   }
 
-  updateUserInput(val, index) {
-    var jsonString = "\"" + this.props.data.id + "\":\"" + val + "\"";
-    this.props.updateUserInput(val, index, [], [], jsonString);
+  updateUserInput(val, id) {
+    var jsonString = "\"" + id + "\":\"" + val + "\"";
+    this.props.updateUserInput(val, id, [], [], jsonString);
   }
 
   updateSliderValue(val) {
-    this.updateUserInput(val, this.props.index);
+    this.updateUserInput(val, this.props.data.id);
   }
 
   getTooltipIcon() {
