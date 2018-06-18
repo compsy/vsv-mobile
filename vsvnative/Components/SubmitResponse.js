@@ -38,7 +38,8 @@ export default class SubmitResponse extends Component<Props> {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YWRtaW46YWRtaW4='
       },
       body: this.state.jsonString
     })
