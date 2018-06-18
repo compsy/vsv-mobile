@@ -10,16 +10,128 @@ import {
   Text,
   View,
   Button,
-  Alert
+  Alert,
+  StatusBar,
+  ScrollView
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { CheckBox, Icon } from 'react-native-elements';
 import QuestionScreen from './QuestionScreen';
+import AuthenticateUser from './Components/AuthenticateUser';
 
+
+class RadioMulti extends Component<Props> {
+
+  constructor(props) {
+      super(props);
+      this.updateChecked = this.updateChecked.bind(this);
+  }
+
+  updateChecked() {
+    this.props.onPress(this.props.index)
+  }
+
+  render() {
+    return(
+      <CheckBox
+        checked={this.props.checked==this.props.index}
+        onPress={this.updateChecked}
+        title = {this.props.title}
+        checkedIcon='dot-circle-o'
+        uncheckedIcon='circle-o'
+      />
+    );
+  }
+
+}
 
 class HomeScreen extends React.Component<Props> {
 
+  constructor(props) {
+    super(props);
+    this.submitLoginInfo = this.submitLoginInfo.bind(this);
+    this.updateCheckedResponse = this.updateCheckedResponse.bind(this);
+  }
+
   _onPressNothing() {
     Alert.alert('I told you this does nothing.')
+  }
+
+  componentWillMount() {
+    this.setState({ loggedIn: false });
+  }
+
+  getHomeScreenComponent() {
+    if (this.state.loggedIn) {
+      var responseList = this.populateResponseList();
+      if (responseList.length > 0) {
+        return(
+          <View>
+            <View style={{flex: 1}}>
+              <ScrollView>
+                {responseList}
+              </ScrollView>
+            </View>
+            <View style={{flex: 1}}>
+              <Button
+                onPress={() => this.navigateQuestionnaire()}
+                title="Start Questionnaire"
+                color="#606060"
+                fontSize="30"
+              />
+            </View>
+          </View>
+        );
+      } else {
+        return(
+          <Text style={styles.noQuestionnaires}>
+            No questionnaires available at the moment.
+          </Text>
+        );
+      }
+    } else {
+      return(
+        <AuthenticateUser
+          updateParentResponses={this.submitLoginInfo}
+        />
+      );
+    }
+  }
+
+  updateCheckedResponse(index) {
+    this.setState({checkedResponse: index});
+  }
+
+  populateResponseList() {
+    return(
+      this.state.responses.map( (t,i) =>
+                            <RadioMulti
+                              title={t.questionnaire.title}
+                              key={i}
+                              index={i}
+                              checked={this.state.checkedResponse}
+                              onPress={this.updateCheckedResponse}
+                            />
+                  )
+    );
+  }
+
+  navigateQuestionnaire() {
+    if (this.state.checkedResponse != -1) {
+      var responseID = this.state.responses[this.state.checkedResponse].uuid;
+      var responseURL = 'https://vsv-test.herokuapp.com/api/v1/response/'
+        + responseID;
+    }
+    this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
+  }
+
+  submitLoginInfo(responses) {
+    this.setState({
+                    responses: responses,
+                    loggedIn: true,
+                    checkedResponse: -1
+                  });
+
   }
 
   static navigationOptions = {
@@ -28,35 +140,24 @@ class HomeScreen extends React.Component<Props> {
 
   render() {
     return (
+      <View style={{flex: 1, flexDirection: 'column'}}>
+        <StatusBar
+          barStyle={"dark-content"}
+        />
       <View style={styles.background}>
         <View style={styles.menuContainer}>
           <View style={styles.titleContainer}>
-            <Text style={styles.welcome}>
-              Main Menu:
+            <Text style={styles.titleText}>
+              {this.state.loggedIn ?
+                "Select a questionnaire" : "Log in to access your\nquestionnaires"}
             </Text>
           </View>
-          <View style={styles.itemContainer}>
-            <Button
-              onPress={() => this.props.navigation.navigate('Question')}
-              title="Test question screen."
-              color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button does nothing."
-              color="#606060"
-              fontSize="30"
-            />
-            <Button
-              onPress={this._onPressNothing}
-              title="This button also does nothing."
-              color="#606060"
-              fontSize="30"
-            />
+          <View style={styles.componentContainer}>
+            {this.getHomeScreenComponent()}
           </View>
         </View>
       </View>
+    </View>
     );
   }
 }
@@ -78,7 +179,7 @@ const NavStack = StackNavigator(
 
 export default class App extends React.Component<Props> {
   render() {
-    return <NavStack />
+    return <NavStack/>
   }
 }
 
@@ -87,25 +188,28 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
     alignItems: 'center',
+    backgroundColor: '#ffffff'
   },
   menuContainer: {
     width: '90%',
-    height: '80%',
+    height: '55%',
+    alignSelf: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   titleContainer: {
     flex: 1,
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  itemContainer: {
-    width: '100%',
-    flex: 3,
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  componentContainer: {
+    flex: 2,
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   navContainer: {
@@ -114,26 +218,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  backButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  nextButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  welcome: {
+  titleText: {
     fontSize: 26,
-    fontWeight: 'bold',
     textAlign: 'center',
-    margin: 10,
-    color: '#000000'
+    margin: 10
   },
-  menuItem: {
-    width: '90%',
-    fontSize: 18,
-    color: '#606060',
+  noQuestionnaires: {
+    fontSize: 20,
     textAlign: 'center',
-    marginBottom: 5,
-  },
+    borderWidth: 60,
+    borderColor: 'transparent',
+    fontWeight: 'bold'
+  }
 });

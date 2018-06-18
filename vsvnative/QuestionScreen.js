@@ -16,6 +16,7 @@ import RadioQuestion from './Components/RadioQuestion';
 import RangeQuestion from './Components/RangeQuestion';
 import RawQuestion from './Components/RawQuestion';
 import UnsubscribeQuestion from './Components/UnsubscribeQuestion';
+import SubmitResponse from './Components/SubmitResponse';
 
 export default class QuestionScreen extends Component<Props> {
 
@@ -28,6 +29,7 @@ export default class QuestionScreen extends Component<Props> {
     this.openPopup = this.openPopup.bind(this);
     this.keepUserInput = this.keepUserInput.bind(this);
     this.showAndHideQuestions = this.showAndHideQuestions.bind(this);
+    this.hasRequiredInput = this.hasRequiredInput.bind(this);
   }
 
   static navigationOptions = {
@@ -36,7 +38,7 @@ export default class QuestionScreen extends Component<Props> {
 
   componentDidMount() {
     return fetch(
-      'https://app.u-can-act.nl/api/v1/questionnaire/student_diary'
+      this.props.navigation.state.params.selectedURL
     )
     .then((response) => {
       if(response.status == 200) {
@@ -50,7 +52,7 @@ export default class QuestionScreen extends Component<Props> {
     })
     .then((responseJson) => {
       if (!(this.state.fetched === "failed")) {
-        this.populateQuestionArrays(responseJson.content);
+        this.populateQuestionArrays(responseJson.questionnaire_content);
       }
     })
     .catch((error) => {
@@ -70,57 +72,84 @@ export default class QuestionScreen extends Component<Props> {
                     hidden: hide,
                     fetched: "true",
                     userInput: [],
-                    numSkipped: 0
+                    numSkipped: 0,
+                    requiresInput: false,
+                    inSubmitScreen: false
                   });
   }
 
+  componentDidUpdate(){
+    if (this.state.submitReady && !this.state.requiresInput && !this.state.inSubmitScreen) {
+      this.setState({inSubmitScreen: true});
+    }
+  }
+
   getQuestionComponent() {
+    if (this.state.submitReady && !this.state.requiresInput) {
+      return(
+        <SubmitResponse
+          userInput={this.state.userInput}
+          quitScreen={this.quitScreen}
+          data={this.state.qContent}
+          hidden={this.state.hidden}
+          responseID={this.props.navigation.state.params.responseID}
+        />
+      );
+    } else {
+      var userInput = undefined;
+      for (i=0; i<this.state.userInput.length; i++) {
+        if (this.state.userInput[i] !== undefined && this.state.userInput[i].id == this.state.qContent[this.state.progress].id) {
+           userInput = this.state.userInput[i].input;
+         }
+      }
+      //var userInput = (this.state.userInput[this.state.progress] !== undefined ? this.state.userInput[this.state.progress].input : undefined);
+      switch(this.state.qContent[this.state.progress].type) {
 
-    switch(this.state.qContent[this.state.progress].type) {
+        case "checkbox":
+          return(
+            <CheckQuestion
+              data={this.state.qContent[this.state.progress]}
+              openPopup={this.openPopup}
+              index={this.state.progress}
+              checked={userInput}
+              updateUserInput={this.keepUserInput}
+              requiresInput={this.hasRequiredInput}
+            />
+          );
+          break;
 
-      case "checkbox":
-        return(
-          <CheckQuestion
-            data={this.state.qContent[this.state.progress]}
-            openPopup={this.openPopup}
-            index={this.state.progress}
-            checked={this.state.userInput[this.state.progress]}
-            updateUserInput={this.keepUserInput}
-          />
-        );
-        break
+        case "radio":
+          return(
+            <RadioQuestion
+              data={this.state.qContent[this.state.progress]}
+              openPopup={this.openPopup}
+              index={this.state.progress}
+              checked={userInput}
+              updateUserInput={this.keepUserInput}
+              requiresInput={this.hasRequiredInput}
+            />
+          );
+          break;
 
-      case "radio":
-        return(
-          <RadioQuestion
-            data={this.state.qContent[this.state.progress]}
-            openPopup={this.openPopup}
-            index={this.state.progress}
-            checked={this.state.userInput[this.state.progress]}
-            updateUserInput={this.keepUserInput}
-          />
-        );
-        break
+        case "range":
+          return(
+            <RangeQuestion
+              data={this.state.qContent[this.state.progress]}
+              openPopup={this.openPopup}
+              index={this.state.progress}
+              value={userInput}
+              updateUserInput={this.keepUserInput}
+            />
+          );
+          break;
 
-      case "range":
-        return(
-          <RangeQuestion
-            data={this.state.qContent[this.state.progress]}
-            openPopup={this.openPopup}
-            index={this.state.progress}
-            value={this.state.userInput[this.state.progress]}
-            updateUserInput={this.keepUserInput}
-          />
-        );
-        break
-
-      case "raw":
-        return(
-          <RawQuestion
-            data={this.state.qContent[this.state.progress]}
-          />
-        );
-        break
+        case "raw":
+          return(
+            <RawQuestion
+              data={this.state.qContent[this.state.progress]}
+            />
+          );
+          break;
 
         case "unsubscribe":
           return(
@@ -129,18 +158,23 @@ export default class QuestionScreen extends Component<Props> {
               quitScreen={this.quitScreen}
             />
           );
-          break
+          break;
 
-      default:
-        return(
-          <Text style={styles.title}>
-            {
-              this.state.qContent[this.state.progress].type +
-               " is not a recognised question type."
-             }
-          </Text>
-        );
+        default:
+          return(
+            <Text style={styles.title}>
+              {
+                this.state.qContent[this.state.progress].type +
+                " is not a recognised question type."
+              }
+            </Text>
+          );
+      }
     }
+  }
+
+  hasRequiredInput(){
+    this.setState({requiresInput: true})
   }
 
   getQuestionContent() {
@@ -169,7 +203,7 @@ export default class QuestionScreen extends Component<Props> {
 
   isHidden(question) {
     for (i=0; i<this.state.hidden.length; i++) {
-      if (this.state.hidden[i] === question.id) {
+      if (question !== undefined && this.state.hidden[i] === question.id) {
         return true;
       }
     }
@@ -181,28 +215,43 @@ export default class QuestionScreen extends Component<Props> {
   */
   onPressNext() {
     this.showAndHideQuestions();
-    if(this.state.progress + 1 < this.state.qContent.length) {
-      var newProgress = this.state.progress + 1;
-      var numSkipped = this.state.numSkipped;
-      while (this.isHidden(this.state.qContent[newProgress])) {
+    var newProgress = this.state.progress;
+    var numSkipped = this.state.numSkipped;
+    var ready = false;
+    if(!this.state.requiresInput) {
+      if ((newProgress + 1 - numSkipped) < (this.state.qContent.length - this.state.hidden.length)) {
         newProgress++;
-        numSkipped++;
+        while ((newProgress - numSkipped) < (this.state.qContent.length - this.state.hidden.length) && this.isHidden(this.state.qContent[newProgress])) {
+          newProgress++;
+          numSkipped++;
+        }
+      } else {
+        ready = true;
       }
-      this.setState({ progress: newProgress, numSkipped: numSkipped });
+      this.setState({ progress: newProgress, numSkipped: numSkipped, submitReady: ready });
     }
   }
 
   onPressBack() {
     this.showAndHideQuestions();
-    if(this.state.progress > 0) {
-      var newProgress = this.state.progress - 1;
-      var numSkipped = this.state.numSkipped;
-      while (this.isHidden(this.state.qContent[newProgress])) {
-        newProgress--;
-        numSkipped--;
+    if(this.state.inSubmitScreen) {
+      this.setState({ submitReady: false, inSubmitScreen: false })
+    } else {
+      if(this.state.progress > 0) {
+        var newProgress = this.state.progress - 1;
+        var numSkipped = this.state.numSkipped;
+        while (this.isHidden(this.state.qContent[newProgress])) {
+          newProgress--;
+          numSkipped--;
+        }
+        this.setState({
+                        progress: newProgress,
+                        numSkipped: numSkipped,
+                        requiresInput: false,
+                        inSubmitScreen: false
+                      });
+        }
       }
-      this.setState({ progress: newProgress, numSkipped: numSkipped });
-    }
   }
 
   /**
@@ -217,10 +266,15 @@ export default class QuestionScreen extends Component<Props> {
     this.props.navigation.goBack();
   }
 
-  keepUserInput(input, index, show, hide) {
+  keepUserInput(input, id, show, hide, jsonString) {
     var userInput = this.state.userInput;
-    userInput[index] = input;
-    this.setState({ userInput: userInput, toHide: hide, toShow: show });
+    for (i=0; i<userInput.length; i++) {
+      if (userInput[i] !== undefined && userInput[i].id == id) {
+        break;
+      }
+    }
+    userInput[i] = {input: input, json: jsonString, id: id};
+    this.setState({ userInput: userInput, toHide: hide, toShow: show, requiresInput: false });
   }
 
   showAndHideQuestions() {
@@ -255,12 +309,16 @@ export default class QuestionScreen extends Component<Props> {
   */
   render() {
 
-    if (this.state.fetched === "true") {
+    if (this.state.fetched === "true" && !this.state.inSubmitScreen) {
       progressText = (this.state.progress + 1 - this.state.numSkipped) +  " of " + (this.state.qContent.length - this.state.hidden.length);
     } else {
       progressText = "";
     }
     if (this.state.qContent != undefined) { debug = this.state.qContent[this.state.progress].id } else { debug = "" }
+    //debug = this.state.userInput[this.state.progress].input; //this.state.submitReady + " " + this.state.requiresInput;
+    /*for (i=1; i<this.state.userInput.length; i++) {
+      debug = debug + this.state.userInput[i-1].json;
+    }*/
     var qContentComponent = this.getQuestionContent();
     return (
       <View style={styles.background}>

@@ -112,15 +112,21 @@ export default class RadioQuestion extends Component<Props> {
   }
 
   componentWillReceiveProps(newProps) {
-    if (typeof newProps.checked !== "undefined"  && newProps.index != this.props.index) {
-      this.setState({checked: newProps.checked});
+    if (newProps.index != this.props.index) {
+      if (newProps.checked === undefined) {
+        this.props.requiresInput();
+        this.setState({checked: -1});
+      } else {
+        this.setState({checked: newProps.checked});
+      }
     }
   }
 
   componentWillMount() {
-    if (typeof this.props.checked !== "undefined") {
+    if (this.props.checked !== undefined) {
       this.setState({checked: this.props.checked});
     } else {
+      this.props.requiresInput();
       this.setState({checked: -1});
     }
   }
@@ -129,6 +135,9 @@ export default class RadioQuestion extends Component<Props> {
     var show = new Array();
     var hide = new Array();
     if (checked != -1) {
+      var jsonString = "\"" + this.props.data.id + "\":\""
+        + (typeof this.props.data.options[checked] === "string" ? this.props.data.options[checked] : this.props.data.options[checked].title)
+        + "\"";
       if (this.props.data.options[checked].shows_questions !== undefined) {
         show = this.props.data.options[checked].shows_questions;
       }
@@ -144,8 +153,7 @@ export default class RadioQuestion extends Component<Props> {
         show = show.concat(this.props.data.options[this.state.checked].hides_questions);
       }
     }
-    this.props.updateUserInput( checked, this.props.index,
-                                show, hide );
+    this.props.updateUserInput( checked, this.props.data.id, show, hide, jsonString);
   }
 
   render() {
