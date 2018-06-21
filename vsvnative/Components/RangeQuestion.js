@@ -25,7 +25,9 @@ export default class SliderQuestion extends Component<Props> {
   };
 
   componentDidMount(){
-    this.updateUserInput((typeof this.props.data.max === "number" ? this.props.data.max/2 : 50), this.props.data.id);
+    if (typeof nextProps.value !== "number") {
+       this.updateUserInput((typeof this.props.data.max === "number" ? this.props.data.max/2 : 50), this.props.data.id);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
