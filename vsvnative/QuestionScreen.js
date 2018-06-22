@@ -341,7 +341,6 @@ export default class QuestionScreen extends Component<Props> {
             color="#606060"
           />
         </View>
-        <Text>{"Hidden: " + this.state.hidden + "   This: " + debug}</Text>
         <PopupDialog
           ref={(popup) => { this.popup = popup;}}
         >

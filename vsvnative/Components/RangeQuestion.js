@@ -18,6 +18,7 @@ export default class SliderQuestion extends Component<Props> {
   constructor(props){
     super(props);
     this.updateSliderValue = this.updateSliderValue.bind(this);
+    this.state = {value: undefined}
   }
 
   static navigationOptions = {
@@ -25,15 +26,19 @@ export default class SliderQuestion extends Component<Props> {
   };
 
   componentDidMount(){
-    if (typeof nextProps.value !== "number") {
-       this.updateUserInput((typeof this.props.data.max === "number" ? this.props.data.max/2 : 50), this.props.data.id);
+    if (typeof this.props.value !== "number") {
+      let val = (typeof this.props.data.max === "number" ? this.props.data.max/2 : 50);
+      this.updateUserInput(val, this.props.data.id);
+      this.setState({value: val});
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.data.id != this.props.data.id) {
       if (typeof nextProps.value !== "number") {
-        this.updateUserInput((typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50), nextProps.data.id);
+        let val = (typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50);
+        this.updateUserInput(val, nextProps.data.id);
+        this.setState({value: val});
       }
     }
   }
@@ -72,6 +77,7 @@ export default class SliderQuestion extends Component<Props> {
     let label1 = this.props.data.labels[0];
     let label2 = this.props.data.labels[1];
     let tooltipIcon = this.getTooltipIcon();
+    let value = (this.state.value != undefined ? this.state.value : "");
     return (
       <View style={styles.mainContainer}>
         <HTMLView
@@ -80,6 +86,7 @@ export default class SliderQuestion extends Component<Props> {
         />
         {tooltipIcon}
         <View style={styles.sliderContainer}>
+          <Text style={{alignSelf: 'center'}}>{this.state.value}</Text>
           <Slider
             style={styles.slider}
             step={1}
@@ -87,6 +94,7 @@ export default class SliderQuestion extends Component<Props> {
             minimumValue={min}
             maximumValue={max}
             onSlidingComplete={this.updateSliderValue}
+            onValueChange={(x) => this.setState({value: x})}
           />
         </View>
         <View style={styles.labelContainer}>
@@ -97,7 +105,6 @@ export default class SliderQuestion extends Component<Props> {
             {label2}
           </Text>
         </View>
-        <Text style={{alignSelf: 'center'}}>{this.props.value}</Text>
       </View>
     );
   }

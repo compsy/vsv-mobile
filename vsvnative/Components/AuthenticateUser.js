@@ -85,6 +85,7 @@ export default class AuthenticateUser extends Component<Props> {
             onChangeText={(pass) => this.setState({password: pass})}
             secureTextEntry={true}
             placeholder={'Password'}
+            onSubmitEditing={() => this.submitLoginInfo()}
           />
         </View>
 
