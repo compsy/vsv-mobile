@@ -18,7 +18,7 @@ export default class SliderQuestion extends Component<Props> {
   constructor(props){
     super(props);
     this.updateSliderValue = this.updateSliderValue.bind(this);
-    this.state = {value: undefined}
+    this.state = {value: 0}
   }
 
   static navigationOptions = {
@@ -30,6 +30,8 @@ export default class SliderQuestion extends Component<Props> {
       let val = (typeof this.props.data.max === "number" ? this.props.data.max/2 : 50);
       this.updateUserInput(val, this.props.data.id);
       this.setState({value: val});
+    } else {
+      this.setState({value: this.props.value});
     }
   }
 
@@ -39,6 +41,8 @@ export default class SliderQuestion extends Component<Props> {
         let val = (typeof nextProps.data.max === "number" ? nextProps.data.max/2 : 50);
         this.updateUserInput(val, nextProps.data.id);
         this.setState({value: val});
+      } else {
+        this.setState({value: nextProps.value});
       }
     }
   }
