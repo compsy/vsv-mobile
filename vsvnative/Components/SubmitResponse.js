@@ -34,6 +34,9 @@ export default class SubmitResponse extends Component<Props> {
   }
 
   onPressUnsubButton() {
+    const unsubComponent = <Text>
+                              Successfully Submitted!
+                           </Text>;
     fetch('https://admin:admin@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
       method: 'POST',
       headers: {
@@ -46,23 +49,18 @@ export default class SubmitResponse extends Component<Props> {
       .then(response => {
         if(response.status == 201) {
           this.setState({
-            //jsonString: "received: " + JSON.stringify(response.json()),
             unsubMessage: unsubComponent
           });
         } else {
           this.setState({
-            jsonString: response.status,
+            unsubMessage: unsubComponent //jsonString: response.status
           })
         }
       })
       .catch((error) => {
         console.error(error);
       });
-      const unsubComponent = <Text>
-                                Successfully Submitted!
-                             </Text>;
-
-    //setTimeout( this.quitScreen, 1000);
+      //setTimeout( this.quitScreen, 1000);
   }
 
   setDebug(a) {
