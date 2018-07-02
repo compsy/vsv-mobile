@@ -18,6 +18,7 @@ import { StackNavigator } from 'react-navigation';
 import { CheckBox, Icon } from 'react-native-elements';
 import QuestionScreen from './QuestionScreen';
 import AuthenticateUser from './Components/AuthenticateUser';
+import { endpointQuestionnaire } from './Endpoints';
 
 
 class RadioMulti extends Component<Props> {
@@ -119,8 +120,7 @@ class HomeScreen extends React.Component<Props> {
   navigateQuestionnaire() {
     if (this.state.checkedResponse != -1) {
       var responseID = this.state.responses[this.state.checkedResponse].uuid;
-      var responseURL = 'https://vsv-test.herokuapp.com/api/v1/response/'
-        + responseID;
+      var responseURL = endpointQuestionnaire + responseID;
     }
     this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
   }

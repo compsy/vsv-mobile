@@ -8,6 +8,7 @@ import {
   TextInput
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { endpointResponseList } from '../Endpoints';
 
 
 
@@ -40,7 +41,7 @@ export default class AuthenticateUser extends Component<Props> {
   }
 
   attemptLogin(username, password) {
-     var url = 'https://vsv-test.herokuapp.com/api/v1/response?external_identifier=' + username;
+     var url = endpointResponseList + username;
      this.setState({ loginURL: url });
      return fetch(
        url

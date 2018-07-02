@@ -9,14 +9,15 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import HTMLView from 'react-native-htmlview';
+import { endpointSubmit } from '../Endpoints';
 
 
 export default class SubmitResponse extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state = {unsubMessage: <View></View>};
-    this.onPressUnsubButton = this.onPressUnsubButton.bind(this);
+    this.state = {submitMessage: <View></View>};
+    this.onPressSubmitButton = this.onPressSubmitButton.bind(this);
     this.quitScreen = this.quitScreen.bind(this);
     this.getAnswers = this.getAnswers.bind(this);
   }
@@ -33,11 +34,8 @@ export default class SubmitResponse extends Component<Props> {
     this.props.quitScreen();
   }
 
-  onPressUnsubButton() {
-    const unsubComponent = <Text>
-                              Successfully Submitted!
-                           </Text>;
-    fetch('https://admin:admin@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
+  onPressSubmitButton() {
+    fetch(endpointSubmit, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -48,19 +46,23 @@ export default class SubmitResponse extends Component<Props> {
     })
       .then(response => {
         if(response.status == 201) {
+          let submitComponent = <Text>
+                                  Successfully Submitted!
+                                </Text>;
           this.setState({
-            unsubMessage: unsubComponent
+            submitMessage: submitComponent
           });
+          setTimeout( this.quitScreen, 1000);
         } else {
-          this.setState({
-            unsubMessage: unsubComponent //jsonString: response.status
-          })
+          let submitComponent = <Text>
+                                  {"Error: " + response.status}
+                                </Text>;
+          this.setState({ submitMessage: submitComponent });
         }
       })
       .catch((error) => {
         console.error(error);
       });
-      //setTimeout( this.quitScreen, 1000);
   }
 
   setDebug(a) {
@@ -68,8 +70,8 @@ export default class SubmitResponse extends Component<Props> {
   }
 
   getAnswers() {
-    var string = "{\"uuid\":\"" + 'caf93575-2067-4b5d-a791-85fc9f56788b' + "\",\"content\":{"; //this.props.responseID
-    var lastID = ""
+    var string = "{\"uuid\":\"" + 'caf93575-2067-4b5d-a791-85fc9f56788b' + "\",\"content\":{";
+    var lastID = "";
     for (i=0; i<this.props.userInput.length; i++) {
       if (this.props.userInput[i] !== undefined && this.props.userInput[i].json != "") {
         string = string + this.props.userInput[i].json + ",";
@@ -92,9 +94,9 @@ export default class SubmitResponse extends Component<Props> {
           <Button
             title="Submit Questionnaire"
             color='#009A74'
-            onPress={this.onPressUnsubButton}
+            onPress={this.onPressSubmitButton}
           />
-          {this.state.unsubMessage}
+          {this.state.submitMessage}
         </View>
       </View>
     );
