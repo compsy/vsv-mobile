@@ -212,7 +212,6 @@ export default class CheckQuestion extends Component<Props> {
             updateParent={this.updateCheckBoxes}
             checked={this.state.checked}
           />
-          <Text>{"Selected: " + this.getSelected()}</Text>
         </View>
       </View>
     );

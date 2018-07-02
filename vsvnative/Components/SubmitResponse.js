@@ -9,14 +9,15 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import HTMLView from 'react-native-htmlview';
+import { endpointSubmit } from '../Endpoints';
 
 
 export default class SubmitResponse extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state = {unsubMessage: <View></View>};
-    this.onPressUnsubButton = this.onPressUnsubButton.bind(this);
+    this.state = {submitMessage: <View></View>};
+    this.onPressSubmitButton = this.onPressSubmitButton.bind(this);
     this.quitScreen = this.quitScreen.bind(this);
     this.getAnswers = this.getAnswers.bind(this);
   }
@@ -33,8 +34,8 @@ export default class SubmitResponse extends Component<Props> {
     this.props.quitScreen();
   }
 
-  onPressUnsubButton() {
-    fetch('https://admin:admin@vsvproject-staging-pr-457.herokuapp.com/api/v1/response', {
+  onPressSubmitButton() {
+    fetch(endpointSubmit, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -45,36 +46,37 @@ export default class SubmitResponse extends Component<Props> {
     })
       .then(response => {
         if(response.status == 201) {
+          let submitComponent = <Text>
+                                  Successfully Submitted!
+                                </Text>;
           this.setState({
-            //jsonString: "received: " + JSON.stringify(response.json()),
-            unsubMessage: unsubComponent
+            submitMessage: submitComponent
           });
+          setTimeout( this.quitScreen, 1000);
         } else {
-          this.setState({
-            jsonString: response.status,
-          })
+          let submitComponent = <Text>
+                                  {"Error: " + response.status}
+                                </Text>;
+          this.setState({ submitMessage: submitComponent });
         }
       })
       .catch((error) => {
         console.error(error);
       });
-      const unsubComponent = <Text>
-                                Successfully Submitted!
-                             </Text>;
-
-    //setTimeout( this.quitScreen, 1000);
-  }
-
-  setDebug(a) {
-    this.setState({debug: a});
   }
 
   getAnswers() {
-    var string = "{\"uuid\":\"" + 'caf93575-2067-4b5d-a791-85fc9f56788b' + "\",\"content\":{"; //this.props.responseID
-    var lastID = ""
+    var string = "{\"uuid\":\"" + this.props.responseID + "\",\"content\":{";
+    var lastID = "";
     for (i=0; i<this.props.userInput.length; i++) {
       if (this.props.userInput[i] !== undefined && this.props.userInput[i].json != "") {
-        string = string + this.props.userInput[i].json + ",";
+        let isHidden = false;
+        for (j=0; j<this.props.hidden.length; j++) {
+          if (this.props.userInput[i].id == this.props.hidden[j]) { isHidden = true }
+        }
+        if (!isHidden){
+          string = string + this.props.userInput[i].json + ",";
+        }
       }
     }
     string = string.slice(0, -1);
@@ -94,9 +96,9 @@ export default class SubmitResponse extends Component<Props> {
           <Button
             title="Submit Questionnaire"
             color='#009A74'
-            onPress={this.onPressUnsubButton}
+            onPress={this.onPressSubmitButton}
           />
-          {this.state.unsubMessage}
+          {this.state.submitMessage}
         </View>
       </View>
     );
