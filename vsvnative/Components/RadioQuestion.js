@@ -17,21 +17,43 @@ class RadioMulti extends Component<Props> {
   constructor(props) {
       super(props);
       this.updateChecked = this.updateChecked.bind(this);
+      this.tooltipOpen = this.tooltipOpen.bind(this);
+  }
+
+  tooltipOpen(tooltip) {
+    this.props.tooltipOpen(tooltip);
   }
 
   updateChecked() {
     this.props.onPress(this.props.index)
   }
 
+  tooltipIcon() {
+    if (typeof this.props.tooltip === "string") {
+      return(
+        <Icon
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.tooltip);}}
+        />
+      );
+    }
+  }
+
   render() {
     return(
-      <CheckBox
-        checked={this.props.checked==this.props.index}
-        onPress={this.updateChecked}
-        title = {this.props.title}
-        checkedIcon='dot-circle-o'
-        uncheckedIcon='circle-o'
-      />
+      <View style={{flexDirection: 'row'}}>
+        <CheckBox
+          containerStyle={{width: '95%'}}
+          checked={this.props.checked==this.props.index}
+          onPress={this.updateChecked}
+          title = {this.props.title}
+          checkedIcon='dot-circle-o'
+          uncheckedIcon='circle-o'
+        />
+        {this.tooltipIcon()}
+      </View>
     );
   }
 
@@ -59,6 +81,8 @@ class RadioGroup extends Component<Props> {
       this.props.options.map( (t,i) =>
                               <RadioMulti
                                 title={typeof t === "string" ? t : t.title}
+                                tooltip={typeof t === "string" ? undefined : t.tooltip}
+                                tooltipOpen={this.props.tooltipOpen}
                                 key={i}
                                 index={i}
                                 checked={this.props.checked}
@@ -173,6 +197,7 @@ export default class RadioQuestion extends Component<Props> {
             options={this.props.data.options}
             updateParent={this.updateRadios}
             checked={this.state.checked}
+            tooltipOpen={this.tooltipOpen}
           />
         </View>
       </View>
@@ -189,7 +214,9 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     flex: 2.5,
+    width: '90%',
     flexDirection: 'column',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
