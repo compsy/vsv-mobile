@@ -65,16 +65,18 @@ export default class SubmitResponse extends Component<Props> {
       });
   }
 
-  setDebug(a) {
-    this.setState({debug: a});
-  }
-
   getAnswers() {
-    var string = "{\"uuid\":\"" + 'caf93575-2067-4b5d-a791-85fc9f56788b' + "\",\"content\":{";
+    var string = "{\"uuid\":\"" + this.props.responseID + "\",\"content\":{";
     var lastID = "";
     for (i=0; i<this.props.userInput.length; i++) {
       if (this.props.userInput[i] !== undefined && this.props.userInput[i].json != "") {
-        string = string + this.props.userInput[i].json + ",";
+        let isHidden = false;
+        for (j=0; j<this.props.hidden.length; j++) {
+          if (this.props.userInput[i].id == this.props.hidden[j]) { isHidden = true }
+        }
+        if (!isHidden){
+          string = string + this.props.userInput[i].json + ",";
+        }
       }
     }
     string = string.slice(0, -1);

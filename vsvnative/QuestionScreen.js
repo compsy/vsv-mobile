@@ -22,7 +22,7 @@ export default class QuestionScreen extends Component<Props> {
 
   constructor(props){
     super(props);
-    this.state ={ fetched: "false", progress: 0 }
+    this.state = { fetched: "false", progress: 0 }
     this.onPressBack = this.onPressBack.bind(this);
     this.onPressNext = this.onPressNext.bind(this);
     this.quitScreen = this.quitScreen.bind(this);
