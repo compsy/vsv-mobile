@@ -173,8 +173,8 @@ export default class QuestionScreen extends Component<Props> {
     }
   }
 
-  hasRequiredInput(){
-    this.setState({requiresInput: true})
+  hasRequiredInput() {
+    this.setState({requiresInput: true});
   }
 
   getQuestionContent() {
