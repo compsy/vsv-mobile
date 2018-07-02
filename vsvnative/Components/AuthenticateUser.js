@@ -32,11 +32,15 @@ export default class AuthenticateUser extends Component<Props> {
   }
 
   submitLoginInfo() {
-    if (this.state.username != undefined && this.state.password != undefined
-       && this.state.username.length == 4 && this.state.password.length == 4) {
-      this.attemptLogin(this.state.username, this.state.password);
-    } else {
-      this.setState({invalid: true});
+    if(!this.state.loggingIn) {
+      this.setState({loggingIn: true});
+      if (this.state.username != undefined && this.state.password != undefined
+        && this.state.username.length == 4 && this.state.password.length == 4) {
+        this.attemptLogin(this.state.username, this.state.password);
+      } else {
+        this.setState({invalid: true});
+      }
+      this.setState({loggingIn: false});
     }
   }
 
