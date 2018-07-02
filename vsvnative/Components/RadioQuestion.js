@@ -174,7 +174,6 @@ export default class RadioQuestion extends Component<Props> {
             updateParent={this.updateRadios}
             checked={this.state.checked}
           />
-          <Text>{"Selected: " + this.state.checked + "   Shows: " + shows}</Text>
         </View>
       </View>
     </View>

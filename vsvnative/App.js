@@ -18,6 +18,7 @@ import { StackNavigator } from 'react-navigation';
 import { CheckBox, Icon } from 'react-native-elements';
 import QuestionScreen from './QuestionScreen';
 import AuthenticateUser from './Components/AuthenticateUser';
+import { endpointQuestionnaire } from './Endpoints';
 
 
 class RadioMulti extends Component<Props> {
@@ -119,8 +120,7 @@ class HomeScreen extends React.Component<Props> {
   navigateQuestionnaire() {
     if (this.state.checkedResponse != -1) {
       var responseID = this.state.responses[this.state.checkedResponse].uuid;
-      var responseURL = 'https://vsv-test.herokuapp.com/api/v1/response/'
-        + responseID;
+      var responseURL = endpointQuestionnaire + responseID;
     }
     this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
   }
@@ -140,24 +140,21 @@ class HomeScreen extends React.Component<Props> {
 
   render() {
     return (
-      <View style={{flex: 1, flexDirection: 'column'}}>
-        <StatusBar
-          barStyle={"dark-content"}
-        />
-      <View style={styles.background}>
-        <View style={styles.menuContainer}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>
-              {this.state.loggedIn ?
-                "Select a questionnaire" : "Log in to access your\nquestionnaires"}
-            </Text>
+	  <View style={{flex: 1}}>
+        <View style={styles.background}>
+          <View style={styles.menuContainer}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>
+                {this.state.loggedIn ?
+                  "Select a questionnaire" : "Log in to access your\nquestionnaires"}
+              </Text>
+            </View>
+            <View style={styles.componentContainer}>
+              {this.getHomeScreenComponent()}
+            </View>
           </View>
-          <View style={styles.componentContainer}>
-            {this.getHomeScreenComponent()}
-          </View>
-        </View>
-      </View>
-    </View>
+	    </View>
+	  </View>
     );
   }
 }
@@ -185,13 +182,14 @@ export default class App extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
+	flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff'
   },
   menuContainer: {
+	minHeight: 350,
     width: '90%',
     height: '55%',
     alignSelf: 'center',
