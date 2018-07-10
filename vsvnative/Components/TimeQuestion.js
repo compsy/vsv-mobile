@@ -84,7 +84,6 @@ export default class TimeQuestion extends Component<Props> {
             {items.map((label, index) =>
               {return (<Picker.Item label={label} value={index} key={index} />)})}
           </Picker>
-          <Text>{this.props.value + " " + this.props.data.id}</Text>
         </View>
       </View>
     );
