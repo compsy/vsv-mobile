@@ -1,7 +1,7 @@
 /**
  * U-Can-Act Native App
- * https://github.com/compsy/svs-mobile
- * @flow
+ * https://github.com/compsy/vsv-mobile
+ *
  */
 import React, { Component } from 'react';
 import {
@@ -121,8 +121,8 @@ class HomeScreen extends React.Component<Props> {
     if (this.state.checkedResponse != -1) {
       var responseID = this.state.responses[this.state.checkedResponse].uuid;
       var responseURL = endpointQuestionnaire + responseID;
+      this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
     }
-    this.props.navigation.navigate('Question', {selectedURL: responseURL, responseID: responseID});
   }
 
   submitLoginInfo(responses) {
