@@ -16,6 +16,8 @@ import RadioQuestion from './Components/RadioQuestion';
 import RangeQuestion from './Components/RangeQuestion';
 import RawQuestion from './Components/RawQuestion';
 import UnsubscribeQuestion from './Components/UnsubscribeQuestion';
+import TextfieldQuestion from './Components/TextfieldQuestion';
+import TimeQuestion from './Components/TimeQuestion'
 import SubmitResponse from './Components/SubmitResponse';
 
 export default class QuestionScreen extends Component<Props> {
@@ -158,6 +160,29 @@ export default class QuestionScreen extends Component<Props> {
             />
           );
           break;
+
+          case "textarea":
+            return(
+              <TextfieldQuestion
+                data={this.state.qContent[this.state.progress]}
+                openPopup={this.openPopup}
+                index={this.state.progress}
+                updateUserInput={this.keepUserInput}
+                text={userInput}
+              />
+            );
+            break;
+
+            case "time":
+              return(
+                <TimeQuestion
+                  data={this.state.qContent[this.state.progress]}
+                  openPopup={this.openPopup}
+                  index={this.state.progress}
+                  updateUserInput={this.keepUserInput}
+                  value={userInput}
+                />
+              );
 
         default:
           return(
