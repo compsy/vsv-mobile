@@ -102,7 +102,6 @@ export default class QuestionScreen extends Component<Props> {
            userInput = this.state.userInput[i].input;
          }
       }
-      //var userInput = (this.state.userInput[this.state.progress] !== undefined ? this.state.userInput[this.state.progress].input : undefined);
       switch(this.state.qContent[this.state.progress].type) {
 
         case "checkbox":

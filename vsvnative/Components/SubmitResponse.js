@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import HTMLView from 'react-native-htmlview';
-import { endpointSubmit } from '../Endpoints';
+import { endpointSubmit, submitAuth } from '../Endpoints';
 
 
 export default class SubmitResponse extends Component<Props> {
@@ -35,34 +35,36 @@ export default class SubmitResponse extends Component<Props> {
   }
 
   onPressSubmitButton() {
-    fetch(endpointSubmit, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic YWRtaW46YWRtaW4='
-      },
-      body: this.state.jsonString
-    })
-      .then(response => {
-        if(response.status == 201) {
-          let submitComponent = <Text>
-                                  Successfully Submitted!
-                                </Text>;
-          this.setState({
-            submitMessage: submitComponent
-          });
-          setTimeout( this.quitScreen, 1000);
-        } else {
-          let submitComponent = <Text>
-                                  {"Error: " + response.status}
-                                </Text>;
-          this.setState({ submitMessage: submitComponent });
-        }
+    if (!this.state.submitting) {
+      this.setState({submitting: true});
+      fetch(endpointSubmit, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': submitAuth
+        },
+        body: this.state.jsonString
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then(response => {
+          if(response.status == 201) {
+            let submitComponent = <Text>
+                                    Successfully Submitted!
+                                  </Text>;
+            this.setState({ submitMessage: submitComponent});
+            setTimeout( this.quitScreen, 1000);
+          } else {
+            let submitComponent = <Text style={{color: '#DC143C'}}>
+                                    {"Error: " + response.status}
+                                  </Text>;
+            this.setState({ submitMessage: submitComponent });
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+    this.setState({submitting: false});
   }
 
   getAnswers() {

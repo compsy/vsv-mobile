@@ -18,19 +18,42 @@ class CheckBoxMulti extends Component<Props> {
       super(props);
       this.state = {checked: false};
       this.updateChecked = this.updateChecked.bind(this);
+      this.tooltipOpen = this.tooltipOpen.bind(this);
+  }
+
+  tooltipOpen(tooltip) {
+    this.props.tooltipOpen(tooltip);
   }
 
   updateChecked() {
     this.props.onPress(this.props.index)
   }
 
+  tooltipIcon() {
+    if (typeof this.props.tooltip === "string") {
+      return(
+        <Icon
+          type='ionicon'
+          name='md-information-circle'
+          color='#009A74'
+          onPress={() => {this.tooltipOpen(this.props.tooltip);}}
+        />
+      );
+    }
+  }
+
   render() {
+
     return(
-      <CheckBox
-        checked={this.props.checked}
-        onPress={this.updateChecked}
-        title = {this.props.title}
-      />
+      <View style={{flexDirection: 'row'}}>
+        <CheckBox
+          containerStyle={{width: '95%'}}
+          checked={this.props.checked}
+          onPress={this.updateChecked}
+          title = {this.props.title}
+        />
+        {this.tooltipIcon()}
+      </View>
     );
   }
 
@@ -60,6 +83,8 @@ class CheckGroup extends Component<Props> {
       this.props.options.map( (t,i) =>
                               <CheckBoxMulti
                                 title={typeof t === "string" ? t : t.title}
+                                tooltip={typeof t === "string" ? undefined : t.tooltip}
+                                tooltipOpen={this.props.tooltipOpen}
                                 key={i}
                                 index={i}
                                 checked={this.props.checked[i]}
@@ -211,6 +236,7 @@ export default class CheckQuestion extends Component<Props> {
             options={this.props.data.options}
             updateParent={this.updateCheckBoxes}
             checked={this.state.checked}
+            tooltipOpen={this.tooltipOpen}
           />
         </View>
       </View>
@@ -225,9 +251,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly'
   },
   optionsContainer: {
+    width: '90%',
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'center'
   },
   title: {
     fontSize: 22,
