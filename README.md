@@ -1,11 +1,8 @@
 # Getting Started
 
-## Environment Requirements
-### Required (many of these will be added in the steps below):
+## Requirements
+### Required:
 * Node.js
-* React Native
-  * Watchman
-  * React Native CLI
 * Xcode 8.0+ (for iOS Development)
 * Android Studio or at least Android SDK (for Android Development)
 
@@ -47,7 +44,7 @@ This should begin running the iOS simulator and building your application. The a
 
 You can use:
 <kbd>⌘</kbd> + <kbd>R</kbd> to reload the application.
-<kdb>⌘</kbd> + <kbd>D</kbd> to open the developer menu.
+<kbd>⌘</kbd> + <kbd>D</kbd> to open the developer menu.
 
 ### Using the Android Emulator
 Using the Android Emulator requires that you have a recent version of Android Studio with Android Virtual Device (AVD) set up.
