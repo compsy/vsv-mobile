@@ -60,7 +60,7 @@ This should begin building and running the application on the Android emulator.
 
 You can use:
 <kbd>⌘</kbd> or <kbd>Ctrl</kbd> + <kbd>R</kbd> to reload the application.
-<kdb>⌘</kbd> or <kbd>Ctrl</kbd> + <kbd>D</kbd> to open the developer menu.
+<kbd>⌘</kbd> or <kbd>Ctrl</kbd> + <kbd>D</kbd> to open the developer menu.
 
 ## Building to Device
 You can build your application to device for iOS or Android to use for development or for release. The process is the same as detailed in the React Native official documentation here:
