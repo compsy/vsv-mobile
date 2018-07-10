@@ -1,4 +1,5 @@
 # Getting Started
+This guide will take you through how to set up a development environment for working with vsv-mobile as well as how to run and test your modifications.
 
 ## Requirements
 ### Required:
