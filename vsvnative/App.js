@@ -21,6 +21,7 @@ import AuthenticateUser from './Components/AuthenticateUser';
 import { endpointQuestionnaire } from './Endpoints';
 
 
+// frbl: Can't this compontent be reused from RadioQuestion.js?
 class RadioMulti extends Component<Props> {
 
   constructor(props) {
@@ -46,6 +47,7 @@ class RadioMulti extends Component<Props> {
 
 }
 
+// frbl: Move to separate file
 class HomeScreen extends React.Component<Props> {
 
   constructor(props) {
